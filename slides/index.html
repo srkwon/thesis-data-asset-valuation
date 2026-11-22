@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데이터 자산 가격 예측 발표</title>
+<!-- v2 (2026-11-14): 요소 간 여백 확대 — 카드·화살표·그리드 간격, 카드 내부 패딩, 칩 간격, SLM-LLM 흐름도 재배치 -->
+<style>
+/* ── 서체: 나눔스퀘어(제목) · 나눔스퀘어 네오(본문). 로컬 fonts/ 우선, 없으면 공식 배포처(hangeul.pstatic.net) ── */
+@font-face{font-family:'NSq';font-weight:700;font-display:swap;src:url(../fonts/NanumSquareB.woff) format('woff'),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquare/NanumSquareB.woff) format('woff')}
+@font-face{font-family:'NSq';font-weight:800;font-display:swap;src:url(../fonts/NanumSquareEB.woff) format('woff'),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquare/NanumSquareEB.woff) format('woff')}
+@font-face{font-family:'NSNeo';font-weight:400;font-display:swap;src:url(../fonts/NanumSquareNeoTTF-bRg.woff) format('woff'),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff) format('woff')}
+@font-face{font-family:'NSNeo';font-weight:700;font-display:swap;src:url(../fonts/NanumSquareNeoTTF-cBd.woff) format('woff'),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff) format('woff')}
+@font-face{font-family:'NSNeo';font-weight:800;font-display:swap;src:url(../fonts/NanumSquareNeoTTF-dEb.woff) format('woff'),url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-dEb.woff) format('woff')}
+
+:root{
+  --green:#03C75A;          /* NAVER Green — 색면·선·강조 면에만 사용 */
+  --green-tint:#EAF9F1;     /* 밝은 그린 면 (본문은 어두운 글자) */
+  --green-soft:#A6E8C4;
+  --ink:#171b1a;            /* 제목·그린 위 글자 (그린 대비 7.72:1) */
+  --text:#333333;           /* 본문 (NAVER Gray) */
+  --sub:#5b625f;            /* 보조 글자 */
+  --line:#dde3e0;
+  --panel:#f4f6f5;
+  --neg:#9aa19e;            /* 하락 방향 막대 */
+  --dark:#131313;           /* 어두운 배경 (그린 대비 8.25:1) */
+  --bg:#ffffff;
+  --title:'NSq','NanumSquare','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+  --body:'NSNeo','NanumSquareNeo','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+  --mono:'D2Coding',Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0d0e0e;color:var(--text);font-family:var(--body);word-break:keep-all;overflow-wrap:break-word}
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.deck{width:1280px;height:720px;position:relative;flex:none;transform-origin:center center}
+
+/* ── 슬라이드 공통 ── */
+.slide{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);padding:44px 64px 0;overflow:hidden}
+.slide.active{display:flex;animation:fade .25s ease-out}
+@keyframes fade{from{opacity:.0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none}}
+.slide::before{content:"";position:absolute;left:0;top:0;width:120px;height:6px;background:var(--green)}
+.slide.cover::before,.slide.end::before{display:none}
+.notes{display:none}
+
+.kicker{display:flex;align-items:center;gap:10px;font:700 16px/1 var(--body);color:var(--text);letter-spacing:.02em}
+.kicker::before{content:"";width:14px;height:14px;border-radius:3px;background:var(--green)}
+.title{font:800 36px/1.28 var(--title);color:var(--ink);margin:14px 0 6px;letter-spacing:-.01em}
+.lead{font:400 20px/1.5 var(--body);color:var(--text);margin:0 0 26px}
+.lead b{font-weight:800;color:var(--ink)}
+.body{flex:1;min-height:0;display:flex;gap:32px}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+.foot{flex:none;height:42px;margin:20px -64px 0;padding:0 64px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--sub)}
+.foot .pg{font-weight:700;color:var(--text)}
+
+.card{border:1px solid var(--line);border-radius:14px;padding:20px 24px;background:#fff;min-width:0}
+.card.tint{background:var(--green-tint);border-color:transparent}
+.card.panel{background:var(--panel);border-color:transparent}
+.card.hl{border:2px solid var(--green)}
+.card h3{font:800 21px/1.3 var(--title);color:var(--ink);margin:0 0 12px}
+.card p{font-size:17px;line-height:1.55;margin:0}
+.card ul{margin:0;padding-left:20px}
+.card li{font-size:17px;line-height:1.55;margin:4px 0}
+.big{font:800 50px/1 var(--title);color:var(--ink);letter-spacing:-.02em}
+.big small{font-size:20px;font-weight:700;margin-left:4px}
+.label{font-size:15px;color:var(--sub);font-weight:700}
+.tag{display:inline-block;padding:4px 10px;border-radius:999px;font:700 13px/1.2 var(--body);background:var(--panel);color:var(--ink);white-space:nowrap}
+.tag.g{background:var(--green);color:var(--ink)}
+.tag.d{background:var(--ink);color:#fff}
+.tag.o{background:#fff;border:1px solid var(--line)}
+.mono{font-family:var(--mono)}
+.chip{display:inline-block;padding:7px 14px;border-radius:8px;background:#fff;border:1px solid var(--line);font:700 16px/1.2 var(--body);color:var(--ink);margin:4px 8px 4px 0}
+.arrow{flex:none;align-self:center;width:34px;height:20px;position:relative}
+.arrow::before{content:"";position:absolute;left:0;right:8px;top:9px;height:3px;background:var(--green)}
+.arrow::after{content:"";position:absolute;right:0;top:3px;border-left:12px solid var(--green);border-top:7px solid transparent;border-bottom:7px solid transparent}
+.arrow.down{width:20px;height:28px}
+.arrow.down::before{left:9px;right:auto;top:0;bottom:8px;width:3px;height:auto}
+.arrow.down::after{right:auto;left:3px;top:auto;bottom:0;border-top:12px solid var(--green);border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:0}
+.note{font-size:14px;color:var(--sub);line-height:1.5}
+.callout{display:block;background:var(--ink);color:#fff;border-radius:12px;padding:16px 24px;font:700 18px/1.45 var(--body)}
+.callout .em{color:var(--green)}
+.num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--green);color:var(--ink);font:800 16px/1 var(--title);flex:none}
+.up{color:var(--ink);font-weight:800}
+.dn{color:var(--sub);font-weight:800}
+table.t{border-collapse:collapse;width:100%;font-size:16px}
+table.t th{font:800 15px/1.3 var(--body);color:var(--ink);text-align:left;padding:10px 12px;border-bottom:2px solid var(--ink);background:#fff}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);line-height:1.4;vertical-align:top}
+table.t td.r,table.t th.r{text-align:right;font-variant-numeric:tabular-nums}
+table.t tr.hl td{background:var(--green-tint);font-weight:800;color:var(--ink)}
+
+/* ── 표지·끝 ── */
+.cover{flex-direction:row;padding:0}
+.cover-l{width:420px;background:var(--green);padding:56px 48px;display:flex;flex-direction:column;justify-content:space-between;color:var(--ink)}
+.cover-l .pipe{display:flex;flex-direction:column;gap:14px}
+.cover-l .pill{background:#fff;border-radius:12px;padding:16px 20px;font:800 22px/1.2 var(--title);color:var(--ink);display:flex;align-items:center;gap:12px}
+.cover-l .pill span{font:700 14px/1 var(--body);color:var(--sub)}
+.cover-l .pipe .arrow.down::before,.cover-l .pipe .arrow.down::after{background:var(--ink);border-top-color:var(--ink)}
+.cover-l .pipe .arrow.down::after{background:none}
+.cover-l .pipe .arrow.down{margin-left:28px}
+.cover-r{flex:1;padding:72px 64px 56px;display:flex;flex-direction:column}
+.cover-r h1{font:800 40px/1.32 var(--title);color:var(--ink);margin:22px 0 14px;letter-spacing:-.015em}
+.cover-r .en{font-size:16px;line-height:1.5;color:var(--sub);margin:0}
+.cover-r .who{margin-top:auto;display:flex;gap:40px;align-items:flex-end;border-top:1px solid var(--line);padding-top:24px}
+.cover-r .who b{display:block;font:800 28px/1.2 var(--title);color:var(--ink)}
+.cover-r .who span{font-size:16px;color:var(--sub);line-height:1.6}
+.end{background:var(--dark);color:#fff;justify-content:center;align-items:flex-start;padding:0 96px}
+.end h2{font:800 72px/1.1 var(--title);margin:0 0 18px;color:#fff}
+.end .qa{font:800 30px/1 var(--title);color:var(--green);margin-bottom:40px}
+.end p{font-size:20px;line-height:1.6;color:#c9cfcc;margin:0}
+
+/* ── 막대 차트 공통 ── */
+.hrow{display:grid;grid-template-columns:230px 1fr 120px;align-items:center;gap:14px;margin:8px 0}
+.hrow .nm{font-size:16px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hrow .tr{height:26px;background:var(--panel);border-radius:6px;position:relative}
+.hrow .fl{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--green)}
+.hrow .fl.neg{background:var(--neg)}
+.hrow .v{font:800 17px/1 var(--title);color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ── 단계별 실험 그리드 ── */
+.steps{display:grid;grid-template-columns:118px repeat(6,1fr);column-gap:14px;font-size:15px}
+.steps .bar{height:226px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 6px;border-bottom:2px solid var(--ink)}
+.steps .bar .r2{font:700 14px/1.2 var(--body);color:var(--sub);margin-bottom:4px}
+.steps .bar .mv{font:800 17px/1.2 var(--title);color:var(--ink);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.steps .bar .fl{width:100%;border-radius:6px 6px 0 0;background:var(--neg)}
+.steps .bar.best .fl,.steps .bar.key .fl{background:var(--green)}
+.steps .ax{display:flex;align-items:flex-end;justify-content:flex-end;padding:0 8px 8px 0;font-size:14px;color:var(--sub);font-weight:700;border-bottom:2px solid transparent}
+.steps .h{font:800 16px/1 var(--title);color:var(--ink);text-align:center;padding:10px 0 8px}
+.steps .rl{font-weight:800;color:var(--ink);padding:7px 0;display:flex;align-items:center}
+.steps .c{text-align:center;padding:7px 4px;color:var(--sub);border-top:1px solid var(--line);white-space:nowrap}
+.steps .c.chg{color:var(--ink);font-weight:800;background:var(--green-tint)}
+.steps .bestcol{background:var(--green-tint)}
+
+/* ── HUD·노트 패널 ── */
+#notesPanel{position:fixed;left:0;right:0;bottom:0;max-height:38vh;overflow:auto;background:rgba(19,19,19,.96);color:#eef1ef;padding:16px 28px 20px;font:400 18px/1.7 var(--body);display:none;z-index:20;border-top:4px solid var(--green)}
+#notesPanel .meta{font:700 14px/1 var(--body);color:var(--green);margin-bottom:8px}
+body.notes-on #notesPanel{display:block}
+#hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:rgba(19,19,19,.92);color:#fff;font:700 14px/1 var(--body);padding:12px 18px;border-radius:999px;z-index:30;transition:opacity .6s;white-space:nowrap}
+#hint b{color:var(--green)}
+#hint.hide{opacity:0;pointer-events:none}
+#blank{position:fixed;inset:0;background:#000;display:none;z-index:40}
+body.blank #blank{display:block}
+#bar{position:fixed;left:0;top:0;height:3px;background:var(--green);z-index:25;transition:width .2s}
+
+@page{size:1280px 720px;margin:0}
+@media print{
+  html,body{background:#fff}
+  .stage{position:static;display:block;overflow:visible}
+  .deck{transform:none!important;width:1280px;height:auto}
+  .slide{display:flex!important;position:relative;height:720px;break-after:page;page-break-after:always;animation:none}
+  #notesPanel,#hint,#blank,#bar{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div class="stage"><div class="deck" id="deck">
+
+<!-- ═════════════ 1. 표지 ═════════════ -->
+<section class="slide cover" data-time="30" data-title="표지">
+  <div class="cover-l">
+    <div style="font:700 16px/1.5 var(--body)">석사학위논문 발표</div>
+    <div class="pipe">
+      <div class="pill">스키마 매칭 <span>SLM-LLM</span></div>
+      <div class="arrow down"></div>
+      <div class="pill">가격 예측 <span>XGBoost</span></div>
+      <div class="arrow down"></div>
+      <div class="pill">설명가능성 <span>SHAP</span></div>
+    </div>
+    <div style="font:700 15px/1.5 var(--body)">데이터 상품 1,985건 · 원천 컬럼 1,519개</div>
+  </div>
+  <div class="cover-r">
+    <div class="kicker">고려대학교 SW·AI융합대학원 · 빅데이터융합학과</div>
+    <h1>SLM-LLM 기반 스키마 매칭 및<br>설명가능 인공지능을 활용한<br>데이터 자산 가격 예측 및 가치평가 연구</h1>
+    <p class="en">A Study on Data Asset Price Prediction and Valuation Using SLM-LLM based Schema Matching and Explainable Artificial Intelligence</p>
+    <div class="who">
+      <div><b>권순률</b><span>빅데이터융합학과 석사과정</span></div>
+      <div><span>지도교수<br><b style="font-size:22px">강성구 교수</b></span></div>
+    </div>
+  </div>
+  <aside class="notes">안녕하십니까. 빅데이터융합학과 권순률입니다. 지금부터 「SLM-LLM 기반 스키마 매칭 및 설명가능 인공지능을 활용한 데이터 자산 가격 예측 및 가치평가 연구」에 대해 발표드리겠습니다.
+한 문장으로 요약하면, 데이터 거래소에 등록된 데이터 상품의 컬럼 정보를 언어모델로 표준화하고, 이를 포함한 메타데이터로 가격을 예측한 뒤, 그 예측 근거를 SHAP으로 설명하는 하나의 통합 프레임워크를 제안한 연구입니다.</aside>
+</section>
+
+<!-- ═════════════ 2. 발표 순서 ═════════════ -->
+<section class="slide" data-time="20" data-title="발표 순서">
+  <div class="kicker">CONTENTS</div>
+  <h2 class="title">발표 순서</h2>
+  <p class="lead">세 개의 실증 파트가 세 개의 연구 문제(RQ)에 하나씩 대응합니다.</p>
+  <div class="body" style="flex-direction:column;gap:28px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="card panel"><div class="label">01</div><h3 style="margin-top:6px">연구 배경 · 문제 제기</h3><p>데이터 자산과 데이터 상품, 정보 비대칭, 메타데이터 이질성</p></div>
+      <div class="card panel"><div class="label">02</div><h3 style="margin-top:6px">연구 설계 · 데이터셋</h3><p>연구 프레임워크, 11,028건 수집, 유료 상품 1,985건</p></div>
+      <div class="card panel"><div class="label">06</div><h3 style="margin-top:6px">결론 · 한계 · 향후 연구</h3><p>연구 문제별 답, 의의, 한계와 확장 방향</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr;gap:16px;align-items:stretch">
+      <div class="card tint"><div style="display:flex;gap:16px;align-items:center"><span class="label">03</span><span class="tag d">RQ1</span></div><h3 style="margin-top:8px">SLM-LLM 스키마 매칭</h3><p>원천 컬럼 → 표준 스키마</p></div>
+      <div class="arrow"></div>
+      <div class="card tint"><div style="display:flex;gap:16px;align-items:center"><span class="label">04</span><span class="tag d">RQ2</span></div><h3 style="margin-top:8px">데이터 상품 가격 예측</h3><p>피처 구성 단계별 성능 비교</p></div>
+      <div class="arrow"></div>
+      <div class="card tint"><div style="display:flex;gap:16px;align-items:center"><span class="label">05</span><span class="tag d">RQ3</span></div><h3 style="margin-top:8px">SHAP 설명가능성</h3><p>가격 기여 요인 · 가치평가 연계</p></div>
+    </div>
+  </div>
+  <aside class="notes">발표는 여섯 부분으로 진행합니다. 연구 배경과 문제 제기, 연구 설계와 데이터셋을 먼저 말씀드리고, 핵심 실증 결과인 스키마 매칭, 가격 예측, SHAP 분석을 차례로 설명드린 뒤 결론과 한계로 마무리하겠습니다.
+가운데 세 개의 실증 파트는 각각 세 가지 연구 문제에 대응하고, 앞 단계의 결과가 다음 단계의 입력이 되는 구조입니다.</aside>
+</section>
+
+<!-- ═════════════ 3. 연구 배경 ═════════════ -->
+<section class="slide" data-time="75" data-title="연구 배경">
+  <div class="kicker">01 연구 배경</div>
+  <h2 class="title">데이터는 자산이 되었지만, 가치를 판단할 근거는 부족하다</h2>
+  <p class="lead">데이터 자산은 거래소에서 <b>데이터 상품</b>이라는 거래 단위로 유통됩니다.</p>
+  <div class="body" style="flex-direction:column">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <div class="card"><div class="label">산업</div><div class="big" style="margin:10px 0 8px">9.8<small>% CAGR</small></div><p>국내 데이터산업 시장 연평균 성장률<br>(2021 → 2025 추정)</p></div>
+      <div class="card"><div class="label">기술</div><div class="big" style="font-size:34px;margin:16px 0 14px">학습 데이터</div><p>AI 서비스 성능은 모델뿐 아니라 데이터의 내용·구조·품질에 좌우</p></div>
+      <div class="card"><div class="label">제도</div><div class="big" style="font-size:34px;margin:16px 0 14px">데이터산업법</div><p>‘데이터 자산’을 법적으로 정의하고 가치평가·품질관리 지원</p></div>
+    </div>
+    <div style="display:flex;align-items:stretch;gap:20px">
+      <div class="card tint" style="width:250px;display:flex;flex-direction:column;justify-content:center"><h3>데이터 자산</h3><p>투자와 노력으로 생성된<br>경제적 가치를 가진 데이터</p></div>
+      <div class="arrow"></div>
+      <div class="card hl" style="flex:1"><h3>데이터 상품 <span class="tag" style="margin-left:6px">거래 단위 · 분석 대상</span></h3>
+        <div><span class="chip">상품명</span><span class="chip">판매자</span><span class="chip">카테고리</span><span class="chip">파일 형식</span><span class="chip">크기</span><span class="chip">상품 설명</span><span class="chip">컬럼 목록</span><span class="chip">가격</span></div></div>
+      <div class="arrow"></div>
+      <div class="card panel" style="width:230px;display:flex;flex-direction:column;justify-content:center"><h3>가격은 적정한가?</h3><p>형태가 없고, 기간·범위·구조에 따라 효용이 달라짐</p></div>
+    </div>
+  </div>
+  <aside class="notes">먼저 연구 배경입니다. 데이터는 세 가지 측면에서 자산으로 자리 잡고 있습니다.
+산업적으로 국내 데이터산업 시장은 2021년부터 2025년 추정치까지 연평균 9.8% 성장하고 있습니다. 기술적으로는 인공지능 서비스의 성능이 모델 자체뿐 아니라 학습 데이터의 내용, 구조, 품질에 좌우됩니다. 제도적으로는 데이터산업법이 ‘데이터 자산’을 법적으로 정의하고 가치평가와 품질관리를 지원하는 기반을 마련했습니다.
+이렇게 자산이 된 데이터는 거래소에서 ‘데이터 상품’이라는 거래 단위로 유통됩니다. 데이터 상품은 상품명, 판매자, 카테고리, 파일 형식, 크기, 상품 설명, 컬럼 목록 같은 메타데이터와 함께 제공되고, 본 연구는 이 데이터 상품을 분석 대상으로 삼았습니다.
+문제는 데이터가 형태가 없고, 같은 데이터라도 제공 기간이나 범위, 구조에 따라 효용이 달라져 가격의 적정성을 일률적으로 판단하기 어렵다는 점입니다.</aside>
+</section>
+
+<!-- ═════════════ 4. 문제 제기 ═════════════ -->
+<section class="slide" data-time="75" data-title="문제 제기">
+  <div class="kicker">01 문제 제기</div>
+  <h2 class="title">두 가지 문제: 정보 비대칭과 메타데이터 이질성</h2>
+  <p class="lead">구매자는 제한된 공개 정보로 판단해야 하고, 그 정보마저 판매자마다 다르게 표현됩니다.</p>
+  <div class="body">
+    <div class="card" style="flex:1">
+      <h3><span class="num" style="margin-right:8px">1</span>정보 비대칭</h3>
+      <div style="margin-top:14px">
+        <div class="label" style="margin-bottom:6px">판매자가 아는 것</div>
+        <div style="height:30px;border-radius:6px;background:var(--green);display:flex;align-items:center;padding-left:12px;font:700 15px var(--body);color:var(--ink)">생성 과정 · 파이프라인 · 수집 범위 · 가공 방법 · 품질 관리</div>
+        <div class="label" style="margin:16px 0 6px">구매자가 볼 수 있는 것</div>
+        <div style="height:30px;width:52%;border-radius:6px;background:var(--neg);display:flex;align-items:center;padding-left:12px;font:700 15px var(--body);color:var(--ink)">상품명 · 가격 · 카테고리 · 컬럼</div>
+        <p class="note" style="margin-top:6px">개념도 · 원천 데이터 전체는 거래 전에 공개되지 않는 경우가 많음</p>
+      </div>
+      <p style="margin-top:16px">→ 제시 가격이 적정한지 <b>비교할 참고 정보</b>가 필요</p>
+    </div>
+    <div class="card" style="flex:1.15">
+      <h3><span class="num" style="margin-right:8px">2</span>메타데이터(컬럼명) 이질성</h3>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:14px">
+        <div style="display:flex;flex-direction:column;align-items:flex-start"><span class="chip">기준년월</span><span class="chip">BASE_YYMM</span><span class="chip">승인년월</span></div>
+        <div class="arrow"></div>
+        <div class="card tint" style="padding:12px 14px"><b style="color:var(--ink)">같은 의미 ‘기준 시점’</b><br><span class="note" style="color:var(--text)">표기가 달라 서로 다른 피처로 인식 → 미탐지</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:14px">
+        <div style="display:flex;flex-direction:column;align-items:flex-start"><span class="chip">이용금액_202401</span><span class="chip">이용금액_202001</span></div>
+        <div style="font:800 26px var(--title);color:var(--ink);padding:0 4px">≠</div>
+        <div class="card panel" style="padding:12px 14px"><b style="color:var(--ink)">문자열은 비슷, 의미는 다름</b><br><span class="note" style="color:var(--text)">기준 시점이 다른 금액 → 오탐지</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:16px">상품 간 구조 비교가 어렵고, 예측을 하더라도 <span class="em">근거를 설명하지 못하면</span> 거래·가치평가에 쓰기 어렵다</div>
+  <aside class="notes">구체적으로 두 가지 문제가 있습니다.
+첫째는 정보 비대칭입니다. 판매자는 데이터 생성 과정, 파이프라인, 품질 관리 체계를 알고 있지만, 구매자는 거래소에 공개된 상품명, 가격, 카테고리, 컬럼 정보와 일부 샘플만으로 판단해야 합니다. 그래서 제시 가격이 적정한지 비교할 참고 정보가 필요합니다.
+둘째는 메타데이터의 이질성입니다. 오른쪽 예시처럼 ‘기준 시점’이라는 같은 의미가 기준년월, BASE_YYMM, 승인년월처럼 판매자마다 다르게 표기됩니다. 반대로 이용금액_202401과 이용금액_202001은 문자열은 거의 같지만 기준 시점이 다른 컬럼입니다. 이런 표기 차이 때문에 같은 정보가 서로 다른 피처로 인식되고, 상품 간 구조 비교가 어려워집니다.
+여기에 예측 모델을 쓰더라도 근거를 설명하지 못하면 실제 거래와 가치평가에 활용하기 어렵다는 문제가 더해집니다.</aside>
+</section>
+
+<!-- ═════════════ 5. 연구 목적·연구 문제 ═════════════ -->
+<section class="slide" data-time="75" data-title="연구 목적과 연구 문제">
+  <div class="kicker">01 연구 목적</div>
+  <h2 class="title">표준화 → 예측 → 설명을 하나의 프레임워크로</h2>
+  <p class="lead">세 연구 문제는 독립 실험이 아니라, <b>앞 단계의 산출물이 다음 단계의 입력</b>이 되는 하나의 파이프라인입니다.</p>
+  <div class="body" style="align-items:stretch;gap:16px">
+    <div class="card hl" style="flex:1;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag d">RQ1</span><span class="label">4장</span></div>
+      <h3 style="margin-top:12px">SLM-LLM 스키마 매칭 성능</h3>
+      <p>SLM 후보 탐색과 LLM 재평가를 결합한 매칭은 이질적인 원천 컬럼을 표준 스키마로 얼마나 잘 정규화하는가?</p>
+      <div style="margin-top:auto;padding-top:14px"><span class="label">산출물</span><br><b style="color:var(--ink)">표준 스키마 사전 (Registry)</b></div>
+    </div>
+    <div class="arrow"></div>
+    <div class="card hl" style="flex:1;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag d">RQ2</span><span class="label">5장</span></div>
+      <h3 style="margin-top:12px">피처 구성별 가격 예측 성능</h3>
+      <p>정형 메타데이터 · 비정형 상품 설명 · 표준 스키마를 단계적으로 추가하면 예측 성능은 어떻게 달라지는가?</p>
+      <div style="margin-top:auto;padding-top:14px"><span class="label">산출물</span><br><b style="color:var(--ink)">최종 가격 예측 모델 (XGBoost)</b></div>
+    </div>
+    <div class="arrow"></div>
+    <div class="card hl" style="flex:1;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag d">RQ3</span><span class="label">6장</span></div>
+      <h3 style="margin-top:12px">SHAP 분석과 가치평가 해석</h3>
+      <p>각 피처는 예측 가격에 어떤 방향·크기로 기여하며, 이 설명은 가치평가에 어떻게 활용될 수 있는가?</p>
+      <div style="margin-top:auto;padding-top:14px"><span class="label">산출물</span><br><b style="color:var(--ink)">기여 요인 · 상품별 예측 근거</b></div>
+    </div>
+  </div>
+  <aside class="notes">이 문제를 해결하기 위해 세 가지 연구 문제를 설정했습니다.
+연구 문제 1은 SLM 후보 탐색과 LLM 재평가를 결합한 스키마 매칭이 이질적인 원천 컬럼을 표준 스키마로 얼마나 잘 정규화하는지입니다. 4장에서 다룹니다.
+연구 문제 2는 정형 메타데이터, 비정형 상품 설명 텍스트, 표준 스키마를 단계적으로 추가할 때 가격 예측 성능이 어떻게 달라지는지이며, 5장에서 다룹니다.
+연구 문제 3은 최종 모델의 각 피처가 예측 가격에 어떤 방향과 크기로 기여하는지, 그리고 이 설명이 가치평가에 어떻게 활용될 수 있는지로, 6장에서 다룹니다.
+중요한 점은 세 문제가 독립 실험이 아니라 하나의 파이프라인이라는 것입니다. 스키마 매칭으로 만든 표준 스키마가 가격 예측의 입력이 되고, 가격 예측 모델이 SHAP 분석의 대상이 됩니다.</aside>
+</section>
+
+<!-- ═════════════ 6. 선행연구·차별성 ═════════════ -->
+<section class="slide" data-time="60" data-optional="1" data-title="선행연구와 차별성">
+  <div class="kicker">01 선행연구</div>
+  <h2 class="title">따로 발전해 온 네 연구 흐름을 하나로 연결</h2>
+  <p class="lead">선행연구의 공백: 스키마 표준화 결과를 가격 예측과 설명으로 잇는 연구가 드물다.</p>
+  <div class="body">
+    <div class="col" style="width:400px">
+      <div class="card panel" style="padding:12px 16px"><b style="color:var(--ink)">데이터 가치평가</b><p class="note" style="color:var(--text)">수익·원가·시장접근법 중심의 평가 체계</p></div>
+      <div class="card panel" style="padding:12px 16px"><b style="color:var(--ink)">스키마 매칭</b><p class="note" style="color:var(--text)">문자열 → 임베딩 → LLM 의미 매칭 (통합·상호운용 목적)</p></div>
+      <div class="card panel" style="padding:12px 16px"><b style="color:var(--ink)">기계학습 가격 예측</b><p class="note" style="color:var(--text)">선형 → Gradient Boosting, 텍스트는 TF-IDF 등</p></div>
+      <div class="card panel" style="padding:12px 16px"><b style="color:var(--ink)">설명가능 AI</b><p class="note" style="color:var(--text)">LIME · SHAP, 트리 모델의 피처 기여도 분석</p></div>
+    </div>
+    <div class="arrow" style="width:48px"></div>
+    <div class="card hl" style="flex:1;padding:14px 18px;align-self:center">
+      <table class="t">
+        <tr><th style="width:110px">구분</th><th>기존 연구</th><th>본 연구</th></tr>
+        <tr><td><b>대상</b></td><td>도메인별 개별 데이터셋</td><td><b>데이터 거래소의 데이터 상품</b></td></tr>
+        <tr><td><b>스키마 매칭</b></td><td>문자열 · 임베딩 · LLM 단일 방식</td><td><b>SLM 후보 탐색 + LLM 재평가</b></td></tr>
+        <tr><td><b>스키마 활용</b></td><td>데이터 통합 · 상호운용</td><td><b>가격 예측의 구조적 피처</b></td></tr>
+        <tr><td><b>가격 예측</b></td><td>정형 · 비정형 중심, 최종 성능</td><td><b>정형 + 비정형 + 표준 스키마, 단계별 비교</b></td></tr>
+        <tr><td><b>가치평가 연계</b></td><td>모델 예측값 단위 활용</td><td><b>예측 + SHAP 근거를 평가 참고자료로</b></td></tr>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">선행연구를 보면 데이터 가치평가, 스키마 매칭, 기계학습 가격 예측, 설명가능 인공지능은 각각 독립적으로 발전해 왔습니다. 스키마 매칭은 문자열 기반에서 임베딩, LLM 기반으로 확장되었지만 주로 데이터 통합과 상호운용이 목적이었고, 가격 예측 연구는 정형·비정형 정보로 최종 성능을 보고하는 경우가 많았습니다.
+본 연구는 여기서 세 가지 공백을 보았습니다. 표준화한 스키마를 가격 예측 피처로 직접 연결한 연구가 드물고, 정보 유형별 추가 기여를 단계적으로 분석한 연구가 부족하며, 예측 결과와 설명 근거를 가치평가 관점으로 연결한 연구가 부족하다는 점입니다.
+본 연구의 차별성은 이 세 가지를 데이터 거래소의 실제 상품을 대상으로 하나의 프레임워크로 연결한 데 있습니다.
+(시간이 부족하면 이 슬라이드는 표의 오른쪽 열만 짚고 넘어갑니다.)</aside>
+</section>
+
+<!-- ═════════════ 7. 연구 프레임워크 ═════════════ -->
+<section class="slide" data-time="75" data-title="전체 연구 프레임워크">
+  <div class="kicker">02 연구 설계</div>
+  <h2 class="title">전체 연구 프레임워크</h2>
+  <p class="lead">데이터 수집부터 설명가능성 분석까지 다섯 단계를 순차적으로 연결했습니다.</p>
+  <div class="body" style="flex-direction:column;gap:16px">
+    <div style="display:grid;grid-template-columns:84px 1fr 30px 1fr 30px 1fr 30px 1fr 30px 1fr;gap:12px;align-items:stretch">
+      <div></div>
+      <div class="card panel" style="padding:14px"><span class="num">1</span><h3 style="margin:10px 0 4px;font-size:19px">데이터 수집</h3><p class="note" style="color:var(--text)">국내 민간 데이터 거래소 공개 메타데이터</p></div>
+      <div class="arrow" style="width:30px"></div>
+      <div class="card panel" style="padding:14px"><span class="num">2</span><h3 style="margin:10px 0 4px;font-size:19px">전처리 ·<br>기준 구축</h3><p class="note" style="color:var(--text)">정형 / 텍스트 / 스키마 분리, 초기 사전·기준값</p></div>
+      <div class="arrow" style="width:30px"></div>
+      <div class="card tint" style="padding:14px"><span class="num">3</span> <span class="tag d" style="float:right">RQ1</span><h3 style="margin:10px 0 4px;font-size:19px">SLM-LLM<br>스키마 매칭</h3><p class="note" style="color:var(--text)">원천 컬럼 → 표준 스키마</p></div>
+      <div class="arrow" style="width:30px"></div>
+      <div class="card tint" style="padding:14px"><span class="num">4</span> <span class="tag d" style="float:right">RQ2</span><h3 style="margin:10px 0 4px;font-size:19px">가격 예측<br>XGBoost</h3><p class="note" style="color:var(--text)">정형 + 텍스트 + 표준 스키마</p></div>
+      <div class="arrow" style="width:30px"></div>
+      <div class="card tint" style="padding:14px"><span class="num">5</span> <span class="tag d" style="float:right">RQ3</span><h3 style="margin:10px 0 4px;font-size:19px">SHAP<br>설명가능성</h3><p class="note" style="color:var(--text)">전체 · 개별 상품 기여도</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:84px 1fr 30px 1fr 30px 1fr 30px 1fr 30px 1fr;gap:12px;font-size:16px">
+      <div class="label" style="padding-top:12px">산출물</div>
+      <div class="card" style="padding:10px 12px">분석 데이터셋<br><b style="color:var(--ink)">11,028 → 1,985건</b></div><div></div>
+      <div class="card" style="padding:10px 12px">메타데이터 3유형<br><b style="color:var(--ink)">초기 사전 1,059키</b></div><div></div>
+      <div class="card" style="padding:10px 12px">표준 스키마 사전<br><b style="color:var(--ink)">Registry</b></div><div></div>
+      <div class="card" style="padding:10px 12px">데이터 자산<br><b style="color:var(--ink)">가격 예측 모델</b></div><div></div>
+      <div class="card" style="padding:10px 12px">가격 결정 요인<br><b style="color:var(--ink)">해석 결과</b></div>
+    </div>
+    <div style="display:grid;grid-template-columns:84px 1fr 30px 1fr 30px 1fr 30px 1fr 30px 1fr;gap:12px;font-size:16px">
+      <div class="label" style="padding-top:12px">평가 기준</div>
+      <div class="card" style="padding:10px 12px">수집 건수<br>유료 상품 건수</div><div></div>
+      <div class="card" style="padding:10px 12px">결측 · 표기 일관성 진단</div><div></div>
+      <div class="card" style="padding:10px 12px"><b style="color:var(--ink)">Recall@K, MRR<br>Accuracy</b></div><div></div>
+      <div class="card" style="padding:10px 12px"><b style="color:var(--ink)">MAE, RMSE, R²</b></div><div></div>
+      <div class="card" style="padding:10px 12px"><b style="color:var(--ink)">주요 기여 피처<br>상품별 해석</b></div>
+    </div>
+    <div class="callout" style="margin-top:8px">③의 <span class="em">표준 스키마</span>가 ④의 입력 피처가 되고, ④의 <span class="em">예측 모델</span>이 ⑤의 분석 대상이 되는 순차 구조</div>
+  </div>
+  <aside class="notes">전체 연구 프레임워크입니다. 다섯 단계로 구성됩니다.
+첫째, 국내 민간 데이터 거래소에서 상품 메타데이터를 수집합니다. 둘째, 수집한 데이터를 정형 메타데이터, 비정형 텍스트, 컬럼·스키마 정보로 나누어 전처리하고, 스키마 매칭의 초기 사전과 평가 기준값을 구축합니다. 셋째, SLM과 LLM을 결합한 스키마 매칭으로 원천 컬럼을 표준 스키마로 정규화합니다. 넷째, 세 유형의 정보를 결합해 XGBoost 가격 예측 모델을 학습합니다. 다섯째, SHAP으로 예측 근거를 해석합니다.
+아래쪽은 단계별 산출물과 평가 기준입니다. 스키마 매칭은 Recall@K, MRR, 정확도로, 가격 예측은 MAE, RMSE, 결정계수로 평가했고, 설명가능성은 주요 기여 피처와 개별 상품 해석으로 정리했습니다. 3, 4, 5단계가 각각 연구 문제 1, 2, 3에 해당합니다.</aside>
+</section>
+
+<!-- ═════════════ 8. 데이터셋 ═════════════ -->
+<section class="slide" data-time="60" data-title="데이터셋 구축">
+  <div class="kicker">02 데이터셋</div>
+  <h2 class="title">11,028건을 수집해 유료 상품 1,985건으로 분석</h2>
+  <p class="lead">2025년 8월 공개 웹페이지 크롤링 · JSONL 저장 · 상품당 17개 필드</p>
+  <div class="body">
+    <div class="card" style="flex:1">
+      <h3>데이터 상품 → 가격 예측 대상</h3>
+      <div style="margin-top:18px">
+        <div class="label">전체 수집 상품</div>
+        <div style="display:flex;align-items:center;gap:20px;margin:6px 0 4px"><div style="height:44px;width:100%;background:var(--panel);border-radius:8px;position:relative;overflow:hidden"><div style="position:absolute;inset:0 18% 0 0;background:var(--neg)"></div><div style="position:absolute;left:12px;top:12px;font:700 15px var(--body);color:var(--ink)">0원 상품 약 81% + 협의 · 범위 가격 등</div></div></div>
+        <div class="big" style="font-size:40px">11,028<small>건</small></div>
+        <div class="arrow down" style="margin:12px 0 6px 10px"></div>
+        <div class="label">유료 상품 (숫자형 가격 &gt; 0원)</div>
+        <div style="height:44px;width:18%;background:var(--green);border-radius:8px;margin:6px 0 4px"></div>
+        <div class="big" style="font-size:40px">1,985<small>건</small></div>
+      </div>
+      <p class="note" style="margin-top:10px">범위·협의 등 단일 금액으로 해석할 수 없는 가격은 종속변수에서 제외</p>
+    </div>
+    <div class="card" style="flex:1">
+      <h3>컬럼명 → 스키마 매칭 대상</h3>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:14px">
+        <div style="width:100%;background:var(--panel);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between"><span>전체 컬럼명</span><b class="mono" style="color:var(--ink)">66,267</b></div>
+        <div style="width:84%;background:var(--panel);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between"><span>고유 컬럼명</span><b class="mono" style="color:var(--ink)">1,528</b></div>
+        <div style="width:72%;background:var(--green-soft);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between"><span>정제 후 고유 원천 컬럼</span><b class="mono" style="color:var(--ink)">1,519</b></div>
+        <div style="width:60%;background:var(--green);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between;color:var(--ink)"><span><b>초기 표준 스키마 키</b></span><b class="mono">1,059</b></div>
+      </div>
+      <p class="note" style="margin-top:8px;text-align:center">단계 도식 (폭은 비례하지 않음)</p>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><span class="tag">품질 이슈</span><span class="tag o">format 결측 4,262건</span><span class="tag o">category 결측 140건</span><span class="tag o">csv / CSV 혼용</span></div>
+    </div>
+  </div>
+  <aside class="notes">데이터셋입니다. 2025년 8월 공개 웹페이지에서 수집한 데이터 상품 11,028건을 상품당 17개 필드로 JSONL에 저장했습니다.
+이 중 숫자형 가격이 있고 0원보다 큰 유료 상품 1,985건을 가격 예측 대상으로 삼았습니다. 전체의 약 81%가 0원 상품이고, 가격을 범위나 협의로 제시한 상품은 단일 금액으로 해석할 수 없어 제외했습니다.
+오른쪽은 스키마 매칭 대상입니다. 전체 컬럼명은 66,267개, 고유 컬럼명은 1,528개이고, 빈 값 제거와 대소문자 정규화를 거쳐 1,519개의 고유 원천 컬럼을 얻었습니다. 이를 LLM으로 의미 통합해 1,059개 표준 스키마 키로 초기 사전을 만들었습니다.
+아래 표시처럼 파일 형식이 비어 있는 상품이 4,262건에 달하는 등, 메타데이터 품질 문제도 함께 확인했습니다.</aside>
+</section>
+
+<!-- ═════════════ 9. 메타데이터·가격 분포 ═════════════ -->
+<section class="slide" data-time="60" data-title="메타데이터와 가격 분포">
+  <div class="kicker">02 데이터셋</div>
+  <h2 class="title">세 유형의 메타데이터, 비선형 회귀 문제</h2>
+  <p class="lead">가격은 꼬리가 긴 다봉 분포여서 <b>log(1+가격)</b>으로 학습하고 원 단위로 되돌려 평가했습니다.</p>
+  <div class="body">
+    <div class="card" style="flex:1.25;padding:14px 18px">
+      <table class="t">
+        <tr><th style="width:150px">유형</th><th>주요 필드</th><th style="width:190px">처리</th></tr>
+        <tr><td><b>정형 메타데이터</b></td><td>판매자, 카테고리, 상품 유형, 파일 형식, 크기, 조회수, 다운로드 수</td><td>범주형 One-Hot<br>크기 MB 통일</td></tr>
+        <tr><td><b>비정형 텍스트</b></td><td>상품명, 요약 설명, 상세 설명</td><td>TF-IDF<br>(비교: Dense 임베딩)</td></tr>
+        <tr class="hl"><td>컬럼 · 스키마</td><td>원천 컬럼명 목록</td><td>SLM-LLM 매칭 →<br>표준 키 TF-IDF</td></tr>
+        <tr><td><b>가격</b></td><td>제시 가격 (price_num)</td><td>종속변수 log(1+p)</td></tr>
+      </table>
+    </div>
+    <div class="card" style="flex:1">
+      <h3>가격 분포의 특징</h3>
+      <svg viewBox="0 0 440 150" width="100%" height="150" role="img" aria-label="가격 분포 개념도">
+        <g font-family="NSNeo, Malgun Gothic, sans-serif" font-size="13" fill="#5b625f">
+          <line x1="10" y1="120" x2="205" y2="120" stroke="#333" stroke-width="1.5"/>
+          <path d="M14,118 C22,20 34,14 50,70 S110,114 200,118" fill="none" stroke="#9aa19e" stroke-width="3.5"/>
+          <text x="12" y="142">원 가격 — Long-tail</text>
+          <line x1="235" y1="120" x2="430" y2="120" stroke="#333" stroke-width="1.5"/>
+          <path d="M238,118 C262,116 274,40 298,62 S326,112 346,92 S382,30 404,82 S420,118 428,118" fill="none" stroke="#03C75A" stroke-width="3.5"/>
+          <text x="237" y="142">log(1+가격) — Multi-modal</text>
+        </g>
+      </svg>
+      <p class="note" style="margin:2px 0 10px">개념도 · 실제 분포는 논문 그림 3-3, 3-6</p>
+      <ul>
+        <li>고가 상품이 손실을 지배 → 로그 변환</li>
+        <li>여러 가격대에 상품이 몰림</li>
+        <li>크기·조회수와 단조 증가 관계 불명확</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">메타데이터는 세 유형으로 구분해 각각 다르게 처리했습니다. 판매자, 카테고리, 파일 형식, 크기, 조회수 같은 정형 메타데이터는 원-핫 인코딩과 단위 변환을, 상품명과 요약·상세 설명 같은 비정형 텍스트는 TF-IDF 벡터화를, 컬럼 정보는 스키마 매칭 후 표준 키 기반 TF-IDF로 변환했습니다.
+오른쪽은 가격 분포의 특징입니다. 유료 상품만 보더라도 고가 상품 때문에 꼬리가 긴 분포이고, 여러 가격대에 상품이 몰려 있으며, 데이터 크기와 가격 사이에도 단조 증가 관계가 뚜렷하지 않습니다.
+그래서 가격에 로그 1 플러스 가격 변환을 적용하고, 이 문제를 비선형 회귀 문제로 정의했습니다. 평가할 때는 다시 원 단위로 역변환해 실제 금액 오차로 비교했습니다.</aside>
+</section>
+
+<!-- ═════════════ 10. 스키마 매칭 문제 정의 ═════════════ -->
+<section class="slide" data-time="60" data-optional="1" data-title="스키마 매칭 문제 정의">
+  <div class="kicker">03 스키마 매칭</div>
+  <h2 class="title">가장 비슷한 이름 찾기가 아니라, ‘통합할지 · 새로 만들지’의 판단</h2>
+  <p class="lead">탐색은 SLM이, 판단은 LLM이 맡도록 역할을 나눴습니다.</p>
+  <div class="body" style="flex-direction:column">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <div class="card"><h3>문자열 기반</h3><p><b class="up">✓</b> 표기가 일관된 환경에서 단순·빠름</p><p style="margin-top:6px"><b class="dn">✕</b> BASE_YYMM ↔ 기준년월 미탐지</p><p style="margin-top:6px"><b class="dn">✕</b> 이용금액_2024 ↔ _2020 오탐지</p></div>
+      <div class="card"><h3>임베딩 기반</h3><p><b class="up">✓</b> 표현이 달라도 의미가 가까운 후보 탐색</p><p style="margin-top:6px"><b class="dn">✕</b> 짧은 약어·날짜 복합명은 문맥 부족</p><p style="margin-top:6px"><b class="dn">✕</b> 최종 선택·신규 생성 판단 불가</p></div>
+      <div class="card hl" style="background:var(--green-tint)"><h3>SLM + LLM (본 연구)</h3><p><b class="up">✓</b> SLM: 대량 컬럼을 Top-K로 빠르게 축소</p><p style="margin-top:6px"><b class="up">✓</b> LLM: 후보의 의미 재평가 · 통합/신규 결정</p><p style="margin-top:6px"><b class="up">✓</b> 사전이 점진적으로 확장</p></div>
+    </div>
+    <div style="display:flex;gap:24px;align-items:stretch">
+      <div class="card panel" style="flex:1;display:flex;align-items:center;gap:20px"><span class="tag d">위험 1</span><p><b>잘못된 통합</b> → 다른 의미의 컬럼이 한 키로 묶여 상품 구조가 왜곡</p></div>
+      <div class="card panel" style="flex:1;display:flex;align-items:center;gap:20px"><span class="tag d">위험 2</span><p><b>과도한 신규 생성</b> → 사전이 파편화되고 관리 비용 증가</p></div>
+    </div>
+  </div>
+  <aside class="notes">이제 첫 번째 핵심인 스키마 매칭입니다. 기존 방법의 한계부터 말씀드리겠습니다.
+문자열 기반 매칭은 BASE_YYMM과 기준년월처럼 표기가 다른 같은 의미를 놓치고, 이용금액_2024와 이용금액_2020처럼 겉모양만 비슷한 컬럼을 잘못 묶습니다. 임베딩 기반 매칭은 의미가 가까운 후보를 찾는 데는 유용하지만, 짧은 약어나 날짜가 섞인 컬럼명은 문맥이 부족하고, 무엇보다 후보 중 무엇을 고를지, 아니면 새 컬럼을 만들지를 판단하지 못합니다.
+본 연구의 매칭 문제는 단순히 가장 비슷한 이름을 찾는 것이 아니라, 기존 표준 키에 통합할지 신규 키로 분리할지를 결정하는 문제입니다. 잘못 통합하면 상품 구조가 왜곡되고, 신규 생성이 과도하면 사전이 파편화됩니다. 그래서 탐색은 SLM이, 판단은 LLM이 맡도록 역할을 나눴습니다.</aside>
+</section>
+
+<!-- ═════════════ 11. SLM-LLM 프레임워크 ═════════════ -->
+<section class="slide" data-time="90" data-title="SLM-LLM 스키마 매칭 프레임워크">
+  <div class="kicker">03 스키마 매칭</div>
+  <h2 class="title">SLM-LLM 기반 스키마 매칭 프레임워크</h2>
+  <p class="lead">새 컬럼이 들어올 때마다 사전이 갱신되는 <b>확장형 지식베이스</b> 구조입니다.</p>
+  <div class="body" style="flex-direction:column;gap:24px">
+    <svg viewBox="0 0 1152 304" width="1152" height="304" role="img" aria-label="SLM-LLM 스키마 매칭 흐름">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#03C75A"/></marker>
+      <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5b625f"/></marker></defs>
+      <g font-family="NSNeo, Malgun Gothic, sans-serif" fill="#171b1a">
+        <rect x="0" y="96" width="150" height="96" rx="12" fill="#f4f6f5"/>
+        <text x="75" y="130" text-anchor="middle" font-size="14" fill="#5b625f" font-weight="700">신규 원천 컬럼</text>
+        <text x="75" y="162" text-anchor="middle" font-size="19" font-weight="800" font-family="Consolas, monospace">BASE_YYMM</text>
+        <line x1="160" y1="144" x2="196" y2="144" stroke="#03C75A" stroke-width="3" marker-end="url(#ah)"/>
+        <rect x="206" y="96" width="190" height="96" rx="12" fill="#fff" stroke="#dde3e0" stroke-width="1.5"/>
+        <text x="301" y="128" text-anchor="middle" font-size="13" font-weight="800" fill="#5b625f">① SLM</text>
+        <text x="301" y="152" text-anchor="middle" font-size="18" font-weight="800">임베딩 (384차원)</text>
+        <text x="301" y="175" text-anchor="middle" font-size="14" fill="#333">코사인 유사도 계산</text>
+        <line x1="406" y1="144" x2="442" y2="144" stroke="#03C75A" stroke-width="3" marker-end="url(#ah)"/>
+        <rect x="452" y="96" width="180" height="96" rx="12" fill="#fff" stroke="#dde3e0" stroke-width="1.5"/>
+        <text x="542" y="128" text-anchor="middle" font-size="13" font-weight="800" fill="#5b625f">후보 공간 축소</text>
+        <text x="542" y="152" text-anchor="middle" font-size="18" font-weight="800">Top-K 후보</text>
+        <text x="542" y="175" text-anchor="middle" font-size="14" fill="#333" font-family="Consolas, monospace">YearMonth, …</text>
+        <line x1="642" y1="144" x2="678" y2="144" stroke="#03C75A" stroke-width="3" marker-end="url(#ah)"/>
+        <rect x="688" y="96" width="180" height="96" rx="12" fill="#03C75A"/>
+        <text x="778" y="128" text-anchor="middle" font-size="13" font-weight="800">② LLM</text>
+        <text x="778" y="152" text-anchor="middle" font-size="18" font-weight="800">Re-Evaluation</text>
+        <text x="778" y="175" text-anchor="middle" font-size="14">의미 적합성 판단</text>
+        <path d="M876,128 C904,128 904,62 932,62" fill="none" stroke="#03C75A" stroke-width="3" marker-end="url(#ah)"/>
+        <path d="M876,160 C904,160 904,226 932,226" fill="none" stroke="#03C75A" stroke-width="3" marker-end="url(#ah)"/>
+        <rect x="944" y="18" width="208" height="88" rx="12" fill="#EAF9F1"/>
+        <text x="1048" y="48" text-anchor="middle" font-size="16" font-weight="800">기존 키에 통합</text>
+        <text x="1048" y="72" text-anchor="middle" font-size="13" font-family="Consolas, monospace">YearMonth.aliases</text>
+        <text x="1048" y="92" text-anchor="middle" font-size="13" font-family="Consolas, monospace">+= BASE_YYMM</text>
+        <rect x="944" y="182" width="208" height="88" rx="12" fill="#f4f6f5"/>
+        <text x="1048" y="212" text-anchor="middle" font-size="16" font-weight="800">신규 표준 키 생성</text>
+        <text x="1048" y="236" text-anchor="middle" font-size="13" font-family="Consolas, monospace">needs_review = true</text>
+        <text x="1048" y="256" text-anchor="middle" font-size="12" fill="#5b625f">사람의 사후 검토 대상</text>
+        <path d="M1048,274 L1048,290 L301,290 L301,204" fill="none" stroke="#5b625f" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ahg)"/>
+        <rect x="490" y="278" width="370" height="24" fill="#fff"/>
+        <text x="675" y="295" text-anchor="middle" font-size="14" font-weight="700" fill="#333">사전 갱신 → 임베딩 재계산 → 다음 컬럼에 반영</text>
+      </g>
+    </svg>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:20px">
+      <div class="card panel" style="padding:14px 16px"><span class="tag o">SLM · 1차 탐색기</span><p style="margin-top:8px">대량 컬럼을 빠르게 Top-K로 좁혀 <b>LLM 비용·시간</b>을 줄임</p></div>
+      <div class="card tint" style="padding:14px 16px"><span class="tag g">LLM · 2차 교정기</span><p style="margin-top:8px">후보의 의미를 비교해 <b>통합 또는 신규 생성</b>을 결정</p></div>
+      <div class="card" style="padding:12px 16px;font:14px/1.55 var(--mono);color:var(--ink)">
+        <span class="label" style="font-family:var(--body)">사전 항목 예시</span><br>
+        canonical: <b>CustomerCount</b><br>
+        aliases: [고객수, cstmr_cnt, cust_cnt, …]<br>
+        definition: 고객 수를 나타내는 지표<br>
+        needs_review: false · embedding: 384-d
+      </div>
+    </div>
+  </div>
+  <aside class="notes">프레임워크의 동작입니다. 예를 들어 BASE_YYMM이라는 새 컬럼이 들어오면, SLM이 이를 384차원 벡터로 임베딩하고, 표준 스키마 사전의 벡터들과 코사인 유사도를 계산해 상위 K개 후보를 뽑습니다. 이 후보는 최종 결과가 아니라 LLM의 입력입니다.
+LLM은 원천 컬럼과 각 후보의 의미를 비교해 둘 중 하나를 결정합니다. 의미가 같은 키가 있으면, 예컨대 YearMonth의 별칭으로 BASE_YYMM을 추가합니다. 적절한 키가 없으면 새 표준 키를 만들되, needs_review를 true로 표시해 사람이 나중에 검토할 수 있게 합니다.
+사전이 갱신되면 임베딩도 다시 계산되어, 다음 컬럼은 최신 사전을 기준으로 매칭됩니다. 오른쪽 아래는 사전 항목의 예시로, CustomerCount라는 표준 키 아래 고객수, cust_cnt 같은 다양한 표현이 별칭으로 묶여 있습니다.
+즉 SLM은 탐색의 효율을, LLM은 판단의 정확성을 맡고, 사전은 상품이 늘수록 확장되는 지식베이스로 동작합니다.</aside>
+</section>
+
+<!-- ═════════════ 12. 매칭 성능 ═════════════ -->
+<section class="slide" data-time="90" data-title="스키마 매칭 성능">
+  <div class="kicker">03 스키마 매칭 · RQ1</div>
+  <h2 class="title">SLM이 좁히고, LLM이 바로잡는다</h2>
+  <p class="lead">원천 컬럼 1,519개 평가 · SLM 단독 Top-1 0.21 → 프레임워크 정확도 <b>0.79</b></p>
+  <div class="body">
+    <div class="card" style="width:360px">
+      <h3>① SLM 후보 탐색</h3>
+      <div style="display:flex;align-items:flex-end;gap:24px;height:220px;border-bottom:2px solid var(--ink);padding:0 6px;margin-top:6px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><b style="font:800 18px var(--title);color:var(--ink);margin-bottom:6px">0.213</b><div style="width:100%;height:85px;background:var(--neg);border-radius:6px 6px 0 0"></div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><b style="font:800 18px var(--title);color:var(--ink);margin-bottom:6px">0.335</b><div style="width:100%;height:134px;background:var(--neg);border-radius:6px 6px 0 0"></div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><b style="font:800 18px var(--title);color:var(--ink);margin-bottom:6px">0.400</b><div style="width:100%;height:160px;background:var(--green);border-radius:6px 6px 0 0"></div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><b style="font:800 18px var(--title);color:var(--ink);margin-bottom:6px">0.281</b><div style="width:100%;height:112px;background:var(--panel);border:2px dashed var(--sub);border-bottom:0;border-radius:6px 6px 0 0"></div></div>
+      </div>
+      <div style="display:flex;gap:24px;padding:8px 6px 0;font:700 14px var(--body);color:var(--ink);text-align:center"><span style="flex:1">R@1</span><span style="flex:1">R@3</span><span style="flex:1">R@5</span><span style="flex:1">MRR</span></div>
+      <p class="note" style="margin-top:10px">단독 확정은 어렵지만, 정답 키를 후보군에 넣는 <b>1차 탐색기</b>로 기능</p>
+    </div>
+    <div class="col" style="flex:1">
+      <div class="card">
+        <h3>② LLM 재평가 결과 (SLM Top-1 vs LLM 최종 선택)</h3>
+        <div style="position:relative;margin-top:56px">
+          <div style="position:absolute;left:0;width:79.46%;top:-30px;height:22px;border:2px solid var(--ink);border-bottom:0;border-radius:6px 6px 0 0"></div>
+          <div style="position:absolute;left:0;width:79.46%;top:-38px;text-align:center"><span style="background:#fff;padding:0 10px;font:800 16px var(--title);color:var(--ink)">최종 정확도 0.7946</span></div>
+          <div style="display:flex;height:58px;border-radius:8px;overflow:hidden;font:800 16px/1.15 var(--title);color:var(--ink)">
+            <div style="width:20.14%;background:var(--green);display:flex;align-items:center;justify-content:center;text-align:center">20.1%</div>
+            <div style="width:59.32%;background:var(--green-soft);display:flex;align-items:center;justify-content:center">59.3%</div>
+            <div style="width:1.18%;background:#d5dad7"></div>
+            <div style="width:19.35%;background:var(--sub);color:#fff;display:flex;align-items:center;justify-content:center">19.4%</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;margin-top:14px;font-size:15px">
+          <div><span style="display:inline-block;width:14px;height:14px;background:var(--green);border-radius:3px;vertical-align:-2px"></span> <b>둘 다 정답</b> 0.2014</div>
+          <div><span style="display:inline-block;width:14px;height:14px;background:var(--green-soft);border-radius:3px;vertical-align:-2px"></span> <b>LLM이 SLM 오류 교정</b> 0.5932</div>
+          <div><span style="display:inline-block;width:14px;height:14px;background:#d5dad7;border-radius:3px;vertical-align:-2px"></span> <b>LLM이 잘못 변경</b> 0.0118</div>
+          <div><span style="display:inline-block;width:14px;height:14px;background:var(--sub);border-radius:3px;vertical-align:-2px"></span> <b>둘 다 오답</b> 0.1935</div>
+        </div>
+      </div>
+      <div class="card panel" style="display:flex;gap:20px;align-items:flex-start">
+        <span class="tag d">해석 주의</span>
+        <p style="font-size:16px">기준 매핑값(Ground Truth)과 초기 사전을 <b>LLM으로 생성</b>했으므로, 0.7946은 사람이 만든 정답 대비 절대 정확도가 아니라 <b>LLM 기준값 대비 정합률</b>입니다.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">성능 평가 결과입니다. 1,519개 원천 컬럼을 대상으로 세 관점에서 평가했습니다.
+왼쪽 SLM 후보 탐색은 Recall@1이 0.21, Recall@5가 0.40, MRR이 0.28입니다. SLM 혼자서는 최종 매칭을 확정하기 어렵다는 뜻이고, 그래서 후보를 좁히는 1차 탐색기로 위치시켰습니다.
+오른쪽 막대는 SLM 1순위와 LLM 최종 선택을 기준값과 비교한 결과입니다. 전체의 59.3%에서 SLM 1순위는 틀렸지만 LLM이 바로잡았고, SLM이 맞았는데 LLM이 잘못 바꾼 경우는 1.2%에 불과했습니다. 둘 다 맞은 20.1%와 LLM이 교정한 59.3%를 합하면 프레임워크 전체 정확도 0.7946이 됩니다.
+다만 분명히 말씀드릴 점은, 기준 매핑값 자체를 LLM으로 생성했기 때문에 이 수치는 사람이 만든 정답 대비 절대 정확도가 아니라 LLM 기준값 대비 정합률로 해석해야 한다는 것입니다. 이 부분은 한계에서 다시 다루겠습니다.</aside>
+</section>
+
+<!-- ═════════════ 13. 가격 예측 실험 설계 ═════════════ -->
+<section class="slide" data-time="60" data-optional="1" data-title="가격 예측 실험 설계">
+  <div class="kicker">04 가격 예측</div>
+  <h2 class="title">두 단계 실험: 알고리즘 선정 → 피처 단계별 비교</h2>
+  <p class="lead">실험 B는 모델과 하이퍼파라미터를 고정하고 <b>입력 피처만</b> 바꿨습니다.</p>
+  <div class="body" style="flex-direction:column">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div class="card"><span class="tag d">실험 A</span><h3 style="margin-top:10px">알고리즘 비교 · 선정</h3>
+        <p>Ridge · LightGBM · XGBoost</p>
+        <div style="display:flex;height:34px;border-radius:8px;overflow:hidden;margin:12px 0 6px;font:800 14px/34px var(--title);color:var(--ink);text-align:center">
+          <div style="width:70%;background:var(--green)">Train 70%</div><div style="width:15%;background:var(--green-soft)">Val 15%</div><div style="width:15%;background:var(--panel)">Test 15%</div></div>
+        <p class="note">검증 데이터로 조기 종료, 테스트 데이터로 1회 평가</p></div>
+      <div class="card"><span class="tag d">실험 B</span><h3 style="margin-top:10px">피처 단계별 성능 비교 (Step 1~6)</h3>
+        <p>XGBoost 고정 · 카테고리 층화 5-Fold × 3회 반복</p>
+        <div style="display:grid;grid-template-columns:repeat(15,1fr);gap:3px;margin:12px 0 6px">
+          <div style="height:34px;background:var(--green);border-radius:3px"></div><div style="height:34px;background:var(--green);border-radius:3px"></div><div style="height:34px;background:var(--green);border-radius:3px"></div><div style="height:34px;background:var(--green);border-radius:3px"></div><div style="height:34px;background:var(--green);border-radius:3px"></div>
+          <div style="height:34px;background:var(--green-soft);border-radius:3px"></div><div style="height:34px;background:var(--green-soft);border-radius:3px"></div><div style="height:34px;background:var(--green-soft);border-radius:3px"></div><div style="height:34px;background:var(--green-soft);border-radius:3px"></div><div style="height:34px;background:var(--green-soft);border-radius:3px"></div>
+          <div style="height:34px;background:var(--neg);border-radius:3px"></div><div style="height:34px;background:var(--neg);border-radius:3px"></div><div style="height:34px;background:var(--neg);border-radius:3px"></div><div style="height:34px;background:var(--neg);border-radius:3px"></div><div style="height:34px;background:var(--neg);border-radius:3px"></div>
+        </div>
+        <p class="note">15개 폴드 평균 MAE · RMSE · R² · 시드 2026 고정</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+      <div class="card panel" style="padding:12px 14px"><b style="color:var(--ink)">범주형</b><p class="note" style="color:var(--text)">One-Hot · 미관측 범주 허용</p></div>
+      <div class="card panel" style="padding:12px 14px"><b style="color:var(--ink)">수치형</b><p class="note" style="color:var(--text)">크기 MB 통일 · 결측 0</p></div>
+      <div class="card panel" style="padding:12px 14px"><b style="color:var(--ink)">상품 설명</b><p class="note" style="color:var(--text)">TF-IDF 1~2gram · 30,000개<br>vs MiniLM 384d · BGE-M3 1,024d</p></div>
+      <div class="card panel" style="padding:12px 14px"><b style="color:var(--ink)">스키마</b><p class="note" style="color:var(--text)">키 단위 TF-IDF · 20,000개</p></div>
+    </div>
+    <div class="callout" style="font-size:16px">종속변수 log(1+가격) → 예측값을 exp(·)−1로 역변환해 <span class="em">원 단위</span> MAE · RMSE · R² 평가 · 전처리기는 학습 폴드에만 적합</div>
+  </div>
+  <aside class="notes">다음은 가격 예측 실험 설계입니다. 실험은 두 단계입니다.
+실험 A에서는 Ridge, LightGBM, XGBoost 세 알고리즘을 70 대 15 대 15 홀드아웃으로 비교해 모델을 선정했습니다.
+실험 B에서는 선정된 XGBoost의 하이퍼파라미터를 고정하고 입력 피처만 바꾸어, 카테고리 비율을 고려한 5겹 교차검증을 3회 반복해 총 15개 폴드의 평균으로 평가했습니다.
+피처는 범주형은 원-핫 인코딩, 크기는 MB 단위로 통일, 상품 설명은 1~2그램 TF-IDF 또는 Dense 임베딩, 스키마는 표준 키 단위 TF-IDF로 만들었습니다. 전처리기는 학습 폴드에만 맞추고 검증 폴드에는 변환만 적용해 정보 누수를 막았고, 난수 시드는 2026으로 고정했습니다.</aside>
+</section>
+
+<!-- ═════════════ 14. 모델 비교 ═════════════ -->
+<section class="slide" data-time="60" data-title="알고리즘 비교">
+  <div class="kicker">04 가격 예측</div>
+  <h2 class="title">비선형 트리 모델이 적합, 최종 알고리즘은 XGBoost</h2>
+  <p class="lead">로그 공간에서는 비슷해 보여도, <b>원 단위</b>로 되돌리면 차이가 크게 벌어집니다.</p>
+  <div class="body">
+    <div class="col" style="flex:1.35">
+      <div class="card" style="padding:14px 18px">
+        <table class="t">
+          <tr><th>모델</th><th class="r">MAE(log)</th><th class="r">RMSE(log)</th><th class="r">R²(log)</th><th class="r">MAE(원)</th><th class="r">RMSE(원)</th></tr>
+          <tr><td>Ridge</td><td class="r">0.3303</td><td class="r">0.6812</td><td class="r">0.9324</td><td class="r">5,747,132</td><td class="r">68,649,049</td></tr>
+          <tr><td>LightGBM</td><td class="r">0.1600</td><td class="r"><b>0.4658</b></td><td class="r"><b>0.9684</b></td><td class="r">961,795</td><td class="r">4,791,535</td></tr>
+          <tr class="hl"><td>XGBoost</td><td class="r">0.1148</td><td class="r">0.4747</td><td class="r">0.9672</td><td class="r">629,395</td><td class="r">4,266,966</td></tr>
+        </table>
+        <p class="note" style="margin-top:6px">홀드아웃 테스트 15% 기준 · 굵은 글씨는 LightGBM이 앞선 지표</p>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:6px">원 단위 MAE</div>
+        <div class="hrow" style="grid-template-columns:110px 1fr 120px"><span class="nm">Ridge</span><div class="tr"><div class="fl neg" style="width:100%"></div></div><span class="v">575만 원</span></div>
+        <div class="hrow" style="grid-template-columns:110px 1fr 120px"><span class="nm">LightGBM</span><div class="tr"><div class="fl neg" style="width:16.7%"></div></div><span class="v">96만 원</span></div>
+        <div class="hrow" style="grid-template-columns:110px 1fr 120px"><span class="nm">XGBoost</span><div class="tr"><div class="fl" style="width:11%"></div></div><span class="v">63만 원</span></div>
+      </div>
+    </div>
+    <div class="col" style="flex:1">
+      <div class="card tint"><h3>선정 근거 1 · 원 단위 MAE 최저</h3><p>가격 판단의 참고 정보로 쓰려면, 개별 상품에서 평균적으로 얼마나 차이 나는지를 보여주는 <b>MAE</b>가 중요</p></div>
+      <div class="card tint"><h3>선정 근거 2 · SHAP 연계</h3><p>트리 기반 SHAP으로 피처가 가격을 올리고 내리는 <b>방향과 크기</b>를 바로 분석 가능</p></div>
+      <div class="card panel"><p style="font-size:16px">Ridge: 로그 R² 0.93이지만 역변환 시 고가 상품 오차가 크게 확대 → <b>선형 가정이 맞지 않음</b></p></div>
+    </div>
+  </div>
+  <aside class="notes">먼저 알고리즘 비교 결과입니다. Ridge는 로그 공간 R²가 0.93으로 나쁘지 않아 보이지만, 원 단위로 되돌리면 평균절대오차가 약 575만 원으로 커집니다. 고가 상품의 오차가 역변환 과정에서 크게 확대되기 때문입니다.
+트리 기반 모델은 오차가 훨씬 작았습니다. LightGBM이 로그 RMSE와 R²에서 근소하게 앞섰지만, XGBoost가 원 단위 MAE 약 63만 원으로 가장 낮았습니다.
+가격 판단의 참고 정보로 쓰려면 실제 금액 차이를 직접 보여주는 MAE가 중요하다고 보았고, 트리 기반 SHAP과 바로 연결된다는 점도 고려해 XGBoost를 최종 모델로 선정했습니다. 이 결과는 데이터 상품 가격이 메타데이터와 비선형 관계라는 앞의 분포 분석과도 일치합니다.</aside>
+</section>
+
+<!-- ═════════════ 15. 단계별 피처 실험 ═════════════ -->
+<section class="slide" data-time="105" data-title="피처 단계별 성능">
+  <div class="kicker">04 가격 예측 · RQ2</div>
+  <h2 class="title">상품 설명 텍스트가 가장 크게, 표준 스키마가 추가로 개선</h2>
+  <p class="lead">같은 XGBoost에 입력만 바꾼 6단계 비교 · 막대는 원 단위 MAE (15개 폴드 평균)</p>
+  <div class="body" style="flex-direction:column;gap:0">
+    <div class="steps">
+      <div class="ax">MAE(원)</div>
+      <div class="bar"><span class="r2">R² 0.8782</span><span class="mv">779,862</span><div class="fl" style="height:171px"></div></div>
+      <div class="bar"><span class="r2">R² 0.8783</span><span class="mv">751,982</span><div class="fl" style="height:165px"></div></div>
+      <div class="bar key"><span class="r2">R² 0.9489</span><span class="mv">422,325</span><div class="fl" style="height:93px"></div></div>
+      <div class="bar best bestcol"><span class="r2" style="color:var(--ink);font-weight:800">R² 0.9512</span><span class="mv">419,474</span><div class="fl" style="height:92px"></div></div>
+      <div class="bar"><span class="r2">R² 0.9167</span><span class="mv">542,685</span><div class="fl" style="height:119px"></div></div>
+      <div class="bar"><span class="r2">R² 0.9083</span><span class="mv">564,384</span><div class="fl" style="height:124px"></div></div>
+
+      <div></div>
+      <div class="h">Step 1<br><span class="note">베이스라인</span></div>
+      <div class="h">Step 2</div>
+      <div class="h">Step 3<br><span class="note" style="color:var(--ink);font-weight:800">MAE −45.8%</span></div>
+      <div class="h bestcol">Step 4 <span class="tag g" style="vertical-align:2px">최종</span><br><span class="note" style="color:var(--ink);font-weight:800">MAE −46.2%</span></div>
+      <div class="h">Step 5</div>
+      <div class="h">Step 6</div>
+
+      <div class="rl">메타데이터</div>
+      <div class="c">원본</div><div class="c chg">정규화</div><div class="c">정규화</div><div class="c bestcol">정규화</div><div class="c">정규화</div><div class="c">정규화</div>
+      <div class="rl">상품 설명</div>
+      <div class="c">—</div><div class="c">—</div><div class="c chg">TF-IDF</div><div class="c bestcol">TF-IDF</div><div class="c chg">MiniLM</div><div class="c chg">BGE-M3</div>
+      <div class="rl">스키마</div>
+      <div class="c">원천</div><div class="c">원천</div><div class="c">원천</div><div class="c chg">표준</div><div class="c">표준</div><div class="c">표준</div>
+      <div class="rl" style="color:var(--sub)">RMSE(원)</div>
+      <div class="c">3,672,458</div><div class="c">3,674,476</div><div class="c">2,338,397</div><div class="c bestcol" style="color:var(--ink);font-weight:800">2,295,608</div><div class="c">2,980,685</div><div class="c">3,103,698</div>
+    </div>
+    <p class="note" style="margin-top:8px">초록 강조 칸 = 직전 단계 대비 바뀐 구성 · MAE 감소율은 Step 1 대비</p>
+  </div>
+  <aside class="notes">이번 발표에서 가장 중요한 결과 중 하나입니다. 같은 XGBoost에 입력 피처만 바꾸어 여섯 단계로 비교했습니다. 아래 표가 각 단계의 구성이고, 막대는 원 단위 MAE, 막대 위 숫자는 R²입니다.
+Step 1은 원본 메타데이터와 원천 스키마만 쓴 베이스라인으로 MAE 약 78만 원, R² 0.878입니다. Step 2에서 카테고리와 파일 형식을 정규화하면 MAE가 3.6% 줄지만 R²는 거의 그대로입니다.
+결정적인 변화는 Step 3입니다. 상품 설명 텍스트를 TF-IDF로 추가하자 MAE가 베이스라인 대비 45.8% 줄고 R²가 0.949로 올랐습니다.
+Step 4에서 원천 스키마를 표준 스키마로 바꾸면 MAE가 0.7%, RMSE가 1.8% 추가로 줄고 R²가 0.951로 가장 높아집니다. 폭은 작지만 세 지표가 모두 일관되게 개선되었습니다.
+Step 5와 6은 텍스트 표현만 MiniLM, BGE-M3 임베딩으로 바꾼 것인데, 오히려 성능이 떨어졌습니다.</aside>
+</section>
+
+<!-- ═════════════ 16. 최종 모델 ═════════════ -->
+<section class="slide" data-time="60" data-title="최종 모델과 해석">
+  <div class="kicker">04 가격 예측 · RQ2</div>
+  <h2 class="title">최종 모델(Step 4): 베이스라인 대비 MAE 46.2% 감소</h2>
+  <p class="lead">정규화 메타데이터 + TF-IDF 상품 설명 + 표준 스키마</p>
+  <div class="body" style="flex-direction:column">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <div class="card hl"><div class="label">MAE</div><div class="big" style="margin:8px 0">419,474<small>원</small></div><p><b class="up">−46.2%</b> <span class="note">(779,862원 → )</span></p></div>
+      <div class="card hl"><div class="label">RMSE</div><div class="big" style="margin:8px 0">2,295,608<small>원</small></div><p><b class="up">−37.5%</b> <span class="note">(3,672,458원 → )</span></p></div>
+      <div class="card hl"><div class="label">R²</div><div class="big" style="margin:8px 0">0.9512</div><p><b class="up">+0.0730</b> <span class="note">(0.8782 → )</span></p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <div class="card tint"><h3>텍스트 = 최대 개선</h3><p>언제·어디서·누구를 대상으로 만든 데이터인지가 상품 설명에 담김</p></div>
+      <div class="card tint"><h3>표준 스키마 = 보완</h3><p>폭은 작지만(MAE −0.7%, RMSE −1.8%) 세 지표 모두 일관되게 개선</p></div>
+      <div class="card tint"><h3>TF-IDF &gt; Dense</h3><p>기간·지역·업종 같은 <b>특정 용어의 출현</b>을 보존 · 임베딩은 압축 과정에서 구분력 약화</p></div>
+    </div>
+    <div class="callout">해석 범위: 가치를 자동으로 결정하는 모형이 아니라, 공개 정보로 <span class="em">가격 수준을 검토하는 보조 모형</span></div>
+  </div>
+  <aside class="notes">그래서 Step 4를 최종 모델로 선정했습니다. 베이스라인 대비 MAE는 46.2%, RMSE는 37.5% 줄었고 R²는 0.073 올랐습니다.
+해석하면 세 가지입니다. 첫째, 가격 예측을 가장 크게 개선한 정보는 상품 설명 텍스트였습니다. 데이터가 언제, 어디서, 누구를 대상으로 만들어졌는지가 설명에 담겨 있기 때문입니다.
+둘째, 표준 스키마는 개선 폭은 작지만 세 지표 모두에서 일관되게, 정형 정보와 텍스트가 담지 못한 구조 정보를 보완했습니다.
+셋째, Dense 임베딩보다 TF-IDF가 나았던 이유는, 기간, 지역, 업종처럼 가격과 직결되는 특정 용어의 출현 여부를 TF-IDF는 그대로 보존하지만 임베딩은 문장 의미로 압축하면서 그 구분력이 약해지기 때문으로 해석했습니다.
+다만 이 모델은 가치를 자동으로 결정하는 모형이 아니라, 공개 정보로 가격 수준을 검토하는 보조 모형으로 보는 것이 적절합니다.</aside>
+</section>
+
+<!-- ═════════════ 17. SHAP 원리 ═════════════ -->
+<section class="slide" data-time="45" data-optional="1" data-title="SHAP 해석 기준">
+  <div class="kicker">05 설명가능성</div>
+  <h2 class="title">SHAP: 하나의 예측을 피처별 기여의 합으로 분해</h2>
+  <p class="lead">모델이 로그 가격을 학습했으므로 SHAP 값도 <b>로그 단위</b>입니다.</p>
+  <div class="body">
+    <div class="col" style="flex:1">
+      <div class="card tint" style="text-align:center;padding:26px 20px">
+        <div style="font:800 36px/1.3 var(--title);color:var(--ink)">f(x) = φ<sub>0</sub> + Σ φ<sub>i</sub></div>
+        <p class="note" style="color:var(--text);margin-top:8px">φ<sub>0</sub>: 전체 데이터의 평균 로그 예측값 · φ<sub>i</sub>: i번째 피처의 기여</p>
+      </div>
+      <div class="card">
+        <table class="t">
+          <tr><td style="width:150px"><b>φ &gt; 0</b></td><td>예측 가격을 <b>높이는</b> 방향</td></tr>
+          <tr><td><b>φ &lt; 0</b></td><td>예측 가격을 <b>낮추는</b> 방향</td></tr>
+          <tr><td><b>|φ|</b></td><td>기여의 상대적 크기</td></tr>
+          <tr><td><b>원 단위 가격</b></td><td>exp(φ<sub>0</sub> + Σφ<sub>i</sub>) − 1</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="col" style="flex:1">
+      <div class="card">
+        <div class="label">Waterfall 개념도</div>
+        <svg viewBox="0 0 470 210" width="100%" height="210" role="img" aria-label="SHAP waterfall 개념도">
+          <g font-family="NSNeo, Malgun Gothic, sans-serif" font-size="14" fill="#171b1a">
+            <line x1="60" y1="190" x2="460" y2="190" stroke="#333" stroke-width="1.5"/>
+            <text x="4" y="40">피처 A</text><rect x="160" y="26" width="150" height="22" rx="4" fill="#03C75A"/><text x="318" y="42" font-weight="800">+</text>
+            <text x="4" y="80">피처 B</text><rect x="310" y="66" width="70" height="22" rx="4" fill="#03C75A"/><text x="388" y="82" font-weight="800">+</text>
+            <text x="4" y="120">피처 C</text><rect x="290" y="106" width="90" height="22" rx="4" fill="#9aa19e"/><text x="270" y="122" font-weight="800">−</text>
+            <line x1="160" y1="20" x2="160" y2="190" stroke="#5b625f" stroke-dasharray="4 4"/>
+            <line x1="290" y1="140" x2="290" y2="190" stroke="#171b1a" stroke-width="2"/>
+            <text x="160" y="206" text-anchor="middle" font-size="13" fill="#5b625f">기준값 φ₀</text>
+            <text x="290" y="206" text-anchor="middle" font-size="13" font-weight="800">최종 예측값</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout" style="font-size:16px">SHAP +1.46 ≠ “146만 원 상승” → <span class="em">로그 가격이 1.46 상승</span></div>
+    </div>
+  </div>
+  <aside class="notes">이제 예측의 근거를 설명하는 SHAP 분석입니다. SHAP은 게임 이론의 섀플리 값을 이용해 하나의 예측값을 기준값과 피처별 기여의 합으로 분해합니다. 양수면 가격을 올리는 방향, 음수면 내리는 방향이고, 절댓값이 크면 영향이 큰 것입니다.
+주의할 점은 모델이 로그 가격을 학습했기 때문에 SHAP 값도 로그 단위라는 것입니다. 예를 들어 어떤 피처의 SHAP 값이 1.46이라고 해서 146만 원을 올렸다는 뜻이 아니라, 로그 가격을 1.46만큼 올렸다는 뜻입니다. 원 단위 가격은 전체 합을 지수 역변환해서 얻습니다.</aside>
+</section>
+
+<!-- ═════════════ 18. Global top 10 ═════════════ -->
+<section class="slide" data-time="75" data-title="전체 상품 기여 피처">
+  <div class="kicker">05 설명가능성 · RQ3</div>
+  <h2 class="title">가장 큰 가격 신호는 상품 설명의 ‘기간’</h2>
+  <p class="lead">유료 상품 1,985건의 평균 절대 SHAP 상위 10개 · ‘기간’ 1.24는 2위의 <b>5배 이상</b></p>
+  <div class="body">
+    <div class="card" style="flex:1.6;padding:14px 20px">
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px;margin:0 0 6px"><span class="label">#</span><span class="label">피처</span><span class="label">유형</span><span class="label">평균 |SHAP|</span><span></span><span class="label">방향</span></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>1</b><span class="nm">기간</span><span class="tag">텍스트</span><div class="tr"><div class="fl" style="width:100%"></div></div><span class="v">1.2402</span><b class="up">▲</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>2</b><span class="nm">제외 (조건 안내 문구)</span><span class="tag">텍스트</span><div class="tr"><div class="fl neg" style="width:19%"></div></div><span class="v">0.2357</span><b class="dn">▼</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>3</b><span class="nm">판매자: 코리아크레딧뷰로</span><span class="tag">정형</span><div class="tr"><div class="fl" style="width:17%"></div></div><span class="v">0.2105</span><b class="up">▲</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>4</b><span class="nm">데이터</span><span class="tag">텍스트</span><div class="tr"><div class="fl" style="width:15.3%"></div></div><span class="v">0.1899</span><b class="up">▲</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>5</b><span class="nm">국내</span><span class="tag">텍스트</span><div class="tr"><div class="fl neg" style="width:14.2%"></div></div><span class="v">0.1760</span><b class="dn">▼</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>6</b><span class="nm">해당</span><span class="tag">텍스트</span><div class="tr"><div class="fl neg" style="width:7%"></div></div><span class="v">0.0872</span><b class="dn">▼</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>7</b><span class="nm">데이터 크기</span><span class="tag">정형</span><div class="tr"><div class="fl" style="width:6.7%"></div></div><span class="v">0.0837</span><b class="up">▲</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>8</b><span class="nm">상품담당자</span><span class="tag">텍스트</span><div class="tr"><div class="fl neg" style="width:5.9%"></div></div><span class="v">0.0729</span><b class="dn">▼</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>9</b><span class="nm">조회수</span><span class="tag">정형</span><div class="tr"><div class="fl neg" style="width:5.7%"></div></div><span class="v">0.0702</span><b class="dn">▼</b></div>
+      <div class="hrow" style="grid-template-columns:28px 210px 92px 1fr 72px 54px"><b>10</b><span class="nm">StandardYearMonth</span><span class="tag g">표준 스키마</span><div class="tr"><div class="fl" style="width:4.1%"></div></div><span class="v">0.0504</span><b class="up">▲</b></div>
+      <p class="note" style="margin-top:8px">▲ 상승 우세 · ▼ 하락 우세 (SHAP &gt; 0 비율 60% 이상 상승 · 40% 이하 하락)</p>
+    </div>
+    <div class="col" style="flex:1">
+      <div class="card tint"><h3>시간 정보가 양쪽에서 신호</h3><p>텍스트 1위 <b>‘기간’</b>, 스키마 1위 <b>StandardYearMonth(기준년월)</b> 모두 시간 정보</p></div>
+      <div class="card panel"><h3>단순 비례가 아님</h3><p>데이터 크기는 상승, <b>조회수는 하락</b> 우세 — 관심도가 높다고 비싸게 예측하지 않음</p></div>
+      <div class="card panel"><h3>주의할 신호</h3><p>판매자 · ‘상품담당자’ 같은 피처는 판매자 가격 정책·문서 작성 패턴을 반영했을 가능성</p></div>
+    </div>
+  </div>
+  <aside class="notes">전체 1,985개 상품에 대해 평균 절대 SHAP 값을 계산한 상위 10개 피처입니다.
+압도적인 1위는 상품 설명의 ‘기간’이라는 단어로 1.24이며, 2위의 다섯 배가 넘습니다. 데이터의 제공 기간 정보가 가격 수준을 구분하는 가장 강한 신호였다는 뜻입니다. 2위 ‘제외’는 제외 조건 안내 문구로 가격을 낮추는 방향이었고, 3위는 코리아크레딧뷰로 판매자 여부로 가격을 높이는 방향이었습니다.
+정형 피처 중에서는 데이터 크기가 상승 방향, 조회수는 하락 방향으로, 조회수가 많다고 비싸게 예측하지는 않았습니다.
+10위에는 표준 스키마 피처인 StandardYearMonth, 즉 기준년월이 올라 있습니다. 텍스트의 ‘기간’과 스키마의 ‘기준년월’이 모두 시간 정보라는 점에서, 시간 정보가 텍스트와 구조 양쪽에서 가격 신호로 쓰였다는 것을 알 수 있습니다.
+다만 판매자나 상품담당자 같은 피처는 데이터 자체보다 판매자의 가격 정책이나 문서 작성 패턴을 반영했을 가능성이 있어, 한계에서 다시 말씀드리겠습니다.</aside>
+</section>
+
+<!-- ═════════════ 19. 유형별 기여 ═════════════ -->
+<section class="slide" data-time="60" data-optional="1" data-title="피처 유형별 기여">
+  <div class="kicker">05 설명가능성 · RQ3</div>
+  <h2 class="title">총량은 텍스트, 피처당 영향은 정형 메타데이터</h2>
+  <p class="lead">전체 7,126개 피처의 평균 절대 SHAP 합계(3.570)를 유형별로 나눈 결과</p>
+  <div class="body" style="flex-direction:column">
+    <div class="card">
+      <div style="display:flex;height:60px;border-radius:10px;overflow:hidden;font:800 20px/60px var(--title);color:var(--ink)">
+        <div style="width:81.4%;background:var(--green);padding-left:18px">비정형 텍스트 81.5%</div>
+        <div style="width:16.9%;background:var(--green-soft);text-align:center;font-size:17px">정형 16.9%</div>
+        <div style="width:1.7%;background:var(--ink)"></div>
+      </div>
+      <div style="text-align:right;font:700 15px var(--body);color:var(--ink);margin-top:6px">표준 스키마 1.7% ↑</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>비정형 텍스트</h3><span class="tag">6,931개</span></div>
+        <div class="label">피처당 평균 |SHAP|</div><div class="big" style="font-size:32px;margin:4px 0 10px">0.00042</div>
+        <p><b class="up">▲</b> 기간 · 데이터 · 정보<br><b class="dn">▼</b> 제외 · 국내 · Academy용</p>
+        <p class="note" style="margin-top:6px">다수 피처에 분산, 일부 단어가 큰 영향</p></div>
+      <div class="card hl"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>정형 메타데이터</h3><span class="tag">48개</span></div>
+        <div class="label">피처당 평균 |SHAP|</div><div class="big" style="font-size:32px;margin:4px 0 10px">0.01255</div>
+        <p><b class="up">▲</b> 판매자(코리아크레딧뷰로) · 데이터 크기<br><b class="dn">▼</b> 조회수</p>
+        <p class="note" style="margin-top:6px">적은 피처에 영향 집중</p></div>
+      <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>표준 스키마</h3><span class="tag">147개</span></div>
+        <div class="label">피처당 평균 |SHAP|</div><div class="big" style="font-size:32px;margin:4px 0 10px">0.00040</div>
+        <p><b class="up">▲</b> StandardYearMonth (기준년월)<br><b class="dn">▼</b> ProvinceName (시도명)</p>
+        <p class="note" style="margin-top:6px">시간·공간 구조를 모델에 전달하는 보완 역할</p></div>
+    </div>
+  </div>
+  <aside class="notes">피처 유형별로 묶어 보겠습니다. 전체 7,126개 피처의 평균 절대 SHAP 합계 중 비정형 텍스트가 81.5%, 정형 메타데이터가 16.9%, 표준 스키마가 1.7%를 차지했습니다.
+그런데 피처 하나당 평균으로 보면 그림이 달라집니다. 정형 메타데이터는 48개 피처로, 피처당 기여가 0.0126으로 가장 높아 적은 수의 피처에 영향이 집중되어 있습니다. 텍스트는 6,931개 피처에 기여가 넓게 분산되면서 ‘기간’ 같은 일부 단어가 큰 영향을 가졌습니다.
+표준 스키마는 비중은 작지만 기준년월은 상승, 시도명은 하락 방향으로, 데이터에 담긴 시간·공간 구조를 모델에 전달하는 보완적 역할을 했습니다.</aside>
+</section>
+
+<!-- ═════════════ 20. 개별 사례 ═════════════ -->
+<section class="slide" data-time="105" data-title="개별 상품 사례">
+  <div class="kicker">05 설명가능성 · RQ3</div>
+  <h2 class="title">같은 ‘기간’ 피처가 한 상품에선 최대 상승, 다른 상품에선 최대 하락</h2>
+  <p class="lead">예측 가격은 하나의 피처가 아니라 여러 피처의 <b>상승·하락 기여가 합쳐져</b> 만들어집니다.</p>
+  <div class="body">
+    <div class="card" style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag d">사례 1 · 시간·공간 정보 중심</span></div>
+      <h3 style="margin:10px 0 4px">전국 시도별 연령대별 지역(법정동) Top 100</h3>
+      <p class="note">2020.02 ~ 2020.08 기간 데이터</p>
+      <div style="margin:12px 0 4px">
+        <div class="hrow" style="grid-template-columns:52px 1fr 128px;margin:4px 0"><span class="label">실제</span><div class="tr"><div class="fl neg" style="width:83.3%"></div></div><span class="v">5,000만 원</span></div>
+        <div class="hrow" style="grid-template-columns:52px 1fr 128px;margin:4px 0"><span class="label">예측</span><div class="tr"><div class="fl" style="width:93.2%"></div></div><span class="v">5,594만 원</span></div>
+        <p class="note" style="text-align:right;margin-top:2px">실제 대비 <b style="color:var(--ink)">+11.9%</b></p>
+      </div>
+      <div class="label" style="margin-top:8px">가장 큰 상승 · 하락 (로그 단위 SHAP)</div>
+      <div style="display:grid;grid-template-columns:150px 1fr 1fr 74px;align-items:center;column-gap:0;row-gap:14px;margin-top:10px;font-size:15px">
+        <b>‘기간’ 텍스트</b><div style="height:26px"></div><div style="height:26px;border-left:2px solid var(--ink)"><div style="width:89%;height:100%;background:var(--green);border-radius:0 5px 5px 0"></div></div><b class="up" style="padding-left:8px">+1.1566</b>
+        <b>AggrdCode 스키마</b><div style="height:26px;display:flex;justify-content:flex-end"><div style="width:11.8%;height:100%;background:var(--neg);border-radius:5px 0 0 5px"></div></div><div style="height:26px;border-left:2px solid var(--ink)"></div><b class="dn" style="padding-left:8px">−0.1533</b>
+        <span></span><span class="note" style="text-align:right;padding-right:6px">← 낮춤</span><span class="note" style="padding-left:6px">높임 →</span><span></span>
+      </div>
+      <p style="margin-top:10px;font-size:16px"><b class="up">▲</b> 연령대·지역 텍스트, <b>CityName</b> 표준 컬럼도 상승</p>
+    </div>
+    <div class="card" style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tag d">사례 2 · 구조·정량 정보 중심</span></div>
+      <h3 style="margin:10px 0 4px">생활인구 가구 연계 데이터_서울/인천/경기</h3>
+      <p class="note">원천 컬럼 52개 · 49.82MB</p>
+      <div style="margin:12px 0 4px">
+        <div class="hrow" style="grid-template-columns:52px 1fr 128px;margin:4px 0"><span class="label">실제</span><div class="tr"><div class="fl neg" style="width:50%"></div></div><span class="v">3,000만 원</span></div>
+        <div class="hrow" style="grid-template-columns:52px 1fr 128px;margin:4px 0"><span class="label">예측</span><div class="tr"><div class="fl" style="width:46%"></div></div><span class="v">2,759만 원</span></div>
+        <p class="note" style="text-align:right;margin-top:2px">실제 대비 <b style="color:var(--ink)">−8.0%</b></p>
+      </div>
+      <div class="label" style="margin-top:8px">가장 큰 하락 (로그 단위 SHAP)</div>
+      <div style="display:grid;grid-template-columns:150px 1fr 1fr 74px;align-items:center;column-gap:0;row-gap:14px;margin-top:10px;font-size:15px">
+        <b>‘기간’ 텍스트 부재</b><div style="height:26px;display:flex;justify-content:flex-end"><div style="width:97.7%;height:100%;background:var(--neg);border-radius:5px 0 0 5px"></div></div><div style="height:26px;border-left:2px solid var(--ink)"></div><b class="dn" style="padding-left:8px">−1.2700</b>
+        <span></span><span class="note" style="text-align:right;padding-right:6px">← 낮춤</span><span class="note" style="padding-left:6px">높임 →</span><span></span>
+      </div>
+      <p style="margin-top:10px;font-size:16px"><b class="up">▲</b> 상승: <b>CityName</b> 표준 컬럼(최대), 원천 컬럼 수, 데이터 크기<br><span class="note">상승 요인은 논문에 수치 미제시 → 방향만 표기</span></p>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:14px">공통점: 두 상품 모두 <span class="em">CityName 표준 스키마</span>가 상승 요인 — 표준화된 지역 정보가 상품을 가로질러 공통 신호로 작동</div>
+  <aside class="notes">개별 상품 두 개로 예측이 어떻게 만들어지는지 보겠습니다.
+왼쪽 사례 1은 ‘전국 시도별 연령대별 지역 Top 100’ 상품으로, 2020년 2월부터 8월까지의 데이터입니다. 실제 가격 5천만 원에 예측 가격은 약 5,594만 원입니다. 가장 큰 상승 요인은 ‘기간’ 텍스트로 로그 단위 +1.16이었고, 연령대·지역 텍스트와 CityName 표준 컬럼도 가격을 올렸습니다. 시간·공간 의미 정보가 주도한 사례입니다.
+오른쪽 사례 2는 ‘생활인구 가구 연계 데이터 서울·인천·경기’로, 실제 3천만 원, 예측 약 2,759만 원입니다. 여기서는 CityName 표준 컬럼, 52개의 컬럼 수, 49.82MB의 데이터 크기가 가격을 올렸습니다. 반면 상품 설명에 기간 정보가 없어서 ‘기간’ 피처가 −1.27로 가장 크게 가격을 낮췄습니다.
+같은 피처가 한 상품에서는 가장 큰 상승 요인, 다른 상품에서는 가장 큰 하락 요인이 된 것입니다. 그리고 두 상품 모두 CityName 표준 컬럼이 상승 요인이었다는 점에서, 표준화한 지역 정보가 상품을 가로지르는 공통 신호로 작동했습니다.
+즉 예측 가격은 여러 피처의 양과 음의 기여가 합쳐져 만들어지고, SHAP은 그 과정을 상품 단위로 보여줍니다.</aside>
+</section>
+
+<!-- ═════════════ 21. 가치평가 적용 ═════════════ -->
+<section class="slide" data-time="75" data-title="가치평가 적용 기반">
+  <div class="kicker">05 설명가능성 · RQ3</div>
+  <h2 class="title">예측 가격 + 근거 = 가치평가를 위한 검토 가능한 참고 자료</h2>
+  <p class="lead">예측 가격은 가치평가액이 아닙니다. 수집 시점의 <b>제시 가격과 메타데이터의 관계</b>를 학습한 추정치입니다.</p>
+  <div class="body">
+    <div class="card" style="flex:1">
+      <h3>가치평가 후보 요인의 구조화</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px">
+        <div class="card panel" style="padding:12px 14px"><b style="color:var(--ink)">거래 · 주체</b><p class="note" style="color:var(--text)">판매자, 카테고리, 가격 유형, 형식<br>※ 내재 가치와 구분 필요</p></div>
+        <div class="card panel" style="padding:12px 14px"><b style="color:var(--ink)">물리 · 시장</b><p class="note" style="color:var(--text)">데이터 크기, 조회수, 컬럼 수<br>방향이 항상 일정하지 않음</p></div>
+        <div class="card tint" style="padding:12px 14px"><b style="color:var(--ink)">시간 · 공간</b><p class="note" style="color:var(--text)">기간, 기준년월, 지역, 행정구역<br>가장 강한 예측 신호</p></div>
+        <div class="card tint" style="padding:12px 14px"><b style="color:var(--ink)">구조</b><p class="note" style="color:var(--text)">표준 컬럼, 컬럼 수, 스키마 구성<br>보완적 정보</p></div>
+      </div>
+    </div>
+    <div class="card" style="flex:1.1">
+      <h3>거래 주체별 활용</h3>
+      <table class="t" style="font-size:15px">
+        <tr><td style="width:96px"><b>판매자</b></td><td>상품 설명의 기간·지역·스키마 완결성 점검<br><span class="note">가격 인상 수단이 아님</span></td></tr>
+        <tr><td><b>구매자</b></td><td>제시가 vs 예측가 차이 → 품질·최신성·권리 자료 요청</td></tr>
+        <tr><td><b>거래소</b></td><td>등록 단계 메타데이터 누락 진단, 표준 스키마 기반 유사 상품 비교</td></tr>
+        <tr><td><b>평가 전문가</b></td><td>시장접근법의 보조자료, 추정 근거 검토</td></tr>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">이 결과를 가치평가 관점에서 정리하면, 가격 예측 기여 요인을 네 가지 후보 요인으로 구조화할 수 있습니다. 판매자, 카테고리 같은 거래·주체 요인, 크기와 조회수 같은 물리·시장 요인, 기간과 지역 같은 시간·공간 요인, 표준 컬럼과 컬럼 수 같은 구조 요인입니다. 다만 판매자 요인은 시장 가격을 설명하지만 데이터 자체의 내재 가치와는 구분해야 합니다.
+활용 측면에서 판매자는 가격을 올리는 수단이 아니라 상품 설명의 완결성을 점검하는 데, 구매자는 제시 가격과 예측 가격의 차이를 보고 품질이나 권리 관련 추가 자료를 요청하는 데, 거래소는 등록 단계에서 기간·지역·스키마 누락을 진단하는 데, 평가 전문가는 시장접근법의 보조 자료로 활용할 수 있습니다.
+강조드리고 싶은 것은, 예측 가격은 가치평가액이 아니라 검토 가능한 참고 근거라는 점입니다.</aside>
+</section>
+
+<!-- ═════════════ 22. 결론 ═════════════ -->
+<section class="slide" data-time="75" data-title="결론">
+  <div class="kicker">06 결론</div>
+  <h2 class="title">세 연구 문제에 대한 답</h2>
+  <p class="lead">스키마 표준화 · 가격 예측 · 설명가능성을 <b>하나의 파이프라인</b>으로 연결했습니다.</p>
+  <div class="body" style="flex-direction:column;gap:20px">
+    <div class="card" style="display:grid;grid-template-columns:70px 1fr 300px;gap:24px;align-items:center;padding:14px 20px"><span class="tag d" style="justify-self:start">RQ1</span><p><b>SLM은 1차 탐색기, LLM은 2차 교정기.</b> 역할 분담 구조가 유효하게 동작</p><div style="text-align:right"><span class="label">정합률</span> <b style="font:800 28px var(--title);color:var(--ink)">0.7946</b><br><span class="note">LLM Winning 0.5932</span></div></div>
+    <div class="card" style="display:grid;grid-template-columns:70px 1fr 300px;gap:24px;align-items:center;padding:14px 20px"><span class="tag d" style="justify-self:start">RQ2</span><p><b>상품 설명 텍스트가 최대 개선, 표준 스키마가 추가 개선.</b> TF-IDF가 Dense 임베딩보다 우수</p><div style="text-align:right"><span class="label">최종 R²</span> <b style="font:800 28px var(--title);color:var(--ink)">0.9512</b><br><span class="note">MAE 419,474원 (−46.2%)</span></div></div>
+    <div class="card" style="display:grid;grid-template-columns:70px 1fr 300px;gap:24px;align-items:center;padding:14px 20px"><span class="tag d" style="justify-self:start">RQ3</span><p><b>‘기간’이 최대 기여 피처, 텍스트가 기여의 81.5%.</b> 개별 예측은 양·음 기여의 결합으로 설명</p><div style="text-align:right"><span class="label">‘기간’ 평균 |SHAP|</span> <b style="font:800 28px var(--title);color:var(--ink)">1.24</b><br><span class="note">2위의 5배 이상</span></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card tint" style="padding:14px 18px"><h3 style="font-size:19px">방법론적 의의</h3><p style="font-size:16px">컬럼 표준화 결과를 가격 예측 피처로 직접 활용하고, SHAP 설명까지 하나의 절차로 연결</p></div>
+      <div class="card tint" style="padding:14px 18px"><h3 style="font-size:19px">시장 측면의 의의</h3><p style="font-size:16px">가격 수준과 그 근거를 함께 제시 → 판매자·구매자·거래소·전문가의 의사결정 보조</p></div>
+    </div>
+  </div>
+  <aside class="notes">결론입니다.
+연구 문제 1에 대해, SLM은 후보를 좁히는 1차 탐색기, LLM은 오류를 바로잡는 2차 교정기로 역할을 나누었고, LLM 기준값 대비 정합률 0.79를 얻었습니다.
+연구 문제 2에 대해, 상품 설명 텍스트가 가장 큰 개선을 주었고 표준 스키마가 추가 개선을 주어, 최종 모델은 MAE 약 42만 원, R² 0.951을 기록했습니다.
+연구 문제 3에 대해, ‘기간’이 가장 큰 기여 피처였고, 텍스트가 전체 기여의 81.5%를 차지했으며, 개별 예측은 양과 음의 기여 결합으로 설명되었습니다.
+이 연구의 의의는 방법론적으로는 스키마 표준화, 가격 예측, 설명가능성을 하나의 파이프라인으로 연결한 것이고, 시장 측면에서는 가격 수준과 그 근거를 함께 제시하는 정량적·정성적 참고 정보를 제공했다는 점입니다.</aside>
+</section>
+
+<!-- ═════════════ 23. 한계·향후 ═════════════ -->
+<section class="slide" data-time="60" data-title="한계와 향후 연구">
+  <div class="kicker">06 한계 · 향후 연구</div>
+  <h2 class="title">설명 가능한 데이터 자산 가치평가 체계로 확장하려면</h2>
+  <p class="lead">각 한계에 대응하는 후속 연구 방향</p>
+  <div class="body" style="flex-direction:column;gap:24px">
+    <div style="display:grid;grid-template-columns:1fr 48px 1fr;gap:16px;align-items:stretch">
+      <div class="card panel"><span class="tag d">한계 1 · 데이터 범위</span><p style="margin-top:8px">단일 거래소 · 특정 시점 · 1,985건</p></div><div class="arrow" style="width:48px"></div>
+      <div class="card tint"><span class="tag g">외부 검증</span><p style="margin-top:8px">다른 거래소·시점, <b>신규 판매자·신규 상품</b>으로 성능과 SHAP 구조의 안정성 검증</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 48px 1fr;gap:16px;align-items:stretch">
+      <div class="card panel"><span class="tag d">한계 2 · 기준값</span><p style="margin-top:8px">종속변수는 실제 체결가가 아닌 <b>제시 가격</b> · 매칭 기준값은 <b>LLM 생성</b></p></div><div class="arrow" style="width:48px"></div>
+      <div class="card tint"><span class="tag g">기준 고도화</span><p style="margin-top:8px"><b>실제 거래가격</b> 확보 · 도메인 전문가가 구축한 <b>표준 스키마 정답셋</b>으로 재평가</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 48px 1fr;gap:16px;align-items:stretch">
+      <div class="card panel"><span class="tag d">한계 3 · 해석 범위</span><p style="margin-top:8px">SHAP은 인과가 아님 · 판매자·문구 패턴 학습 가능성</p></div><div class="arrow" style="width:48px"></div>
+      <div class="card tint"><span class="tag g">요인 확장</span><p style="margin-top:8px"><b>품질 · 권리 · 시장정보</b> 결합, 판매자 제외 민감도 분석, 담당자명·반복 문구 정제</p></div>
+    </div>
+  </div>
+  <aside class="notes">마지막으로 한계와 향후 연구입니다.
+첫째, 단일 거래소의 특정 시점 데이터 1,985건만 사용했으므로 다른 거래소, 다른 시점, 신규 판매자와 신규 상품에 대한 외부 검증이 필요합니다.
+둘째, 종속변수가 실제 체결가가 아닌 제시 가격이고, 스키마 매칭의 기준값도 LLM이 생성했습니다. 향후 실제 거래가격과 전문가가 구축한 정답셋으로 검증해야 합니다.
+셋째, SHAP은 모델의 예측 근거이지 인과관계가 아닙니다. 상품 설명에 ‘기간’이라는 단어를 넣는다고 가치가 오르는 것은 아닙니다. 또 판매자나 특정 문구가 높은 기여를 보인 것은 모델이 판매자의 가격 정책이나 문서 작성 패턴을 학습했을 가능성도 의미하므로, 판매자 제외 민감도 분석과 텍스트 정제가 필요합니다.
+여기에 품질 지표, 권리 정보, 시장 정보를 결합하면, 본 연구의 프레임워크를 설명 가능하고 신뢰성 있는 데이터 자산 가치평가 체계로 확장할 수 있다고 봅니다.</aside>
+</section>
+
+<!-- ═════════════ 24. 감사 ═════════════ -->
+<section class="slide end" data-time="15" data-title="감사합니다">
+  <h2>감사합니다</h2>
+  <div class="qa">Q &amp; A</div>
+  <p>SLM-LLM 기반 스키마 매칭 및 설명가능 인공지능을 활용한<br>데이터 자산 가격 예측 및 가치평가 연구</p>
+  <p style="margin-top:28px;color:#fff;font-weight:700">권순률 · 고려대학교 SW·AI융합대학원 빅데이터융합학과</p>
+  <aside class="notes">이상으로 발표를 마치겠습니다. 경청해 주셔서 감사합니다. 질문 주시면 성실히 답변드리겠습니다.
+(질의응답 중 필요한 경우 → 키로 부록 A1 예상 질의, A2 실험 환경 슬라이드를 띄울 수 있습니다.)</aside>
+</section>
+
+<!-- ═════════════ 부록 A1 예상 질의 ═════════════ -->
+<section class="slide" data-appendix="A1" data-time="0" data-title="부록 · 예상 질의">
+  <div class="kicker">부록 A1</div>
+  <h2 class="title">예상 질의와 답변 요지</h2>
+  <div class="body" style="flex-direction:column;gap:20px;margin-top:10px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="card"><h3 style="font-size:18px">Q. 정확도 0.7946을 믿을 수 있나?</h3><p style="font-size:15px">기준값·초기 사전 모두 LLM 기반 → <b>정합률</b>로 한정해 해석. 전문가 정답셋과 사전 구축에 쓰지 않은 신규 컬럼으로 일반화 평가 예정</p></div>
+      <div class="card"><h3 style="font-size:18px">Q. 스키마 기여가 1.7%인데 의미가 있나?</h3><p style="font-size:15px">MAE·RMSE·R² 모두 일관 개선. 성능 주도보다 <b>상품 간 구조 비교 가능성</b>과 해석 가능한 구조 신호(기준년월·CityName) 확보가 핵심</p></div>
+      <div class="card"><h3 style="font-size:18px">Q. 판매자·담당자 피처는 편향 아닌가?</h3><p style="font-size:15px">판매자 가격 정책·문서 패턴 학습 가능성을 인정. 내재 가치와 구분하고, 판매자 제외 민감도·신규 판매자 검증·텍스트 정제를 후속 과제로 제시</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="card"><h3 style="font-size:18px">Q. 왜 Dense 임베딩이 더 낮았나?</h3><p style="font-size:15px">TF-IDF는 기간·지역·업종 등 <b>특정 용어의 출현</b>을 그대로 보존, 임베딩은 문장 의미로 압축하며 구분력이 약화된 것으로 해석</p></div>
+      <div class="card"><h3 style="font-size:18px">Q. 1,985건 선정 기준은?</h3><p style="font-size:15px">숫자형 price_num &gt; 0원인 상품. ‘7,000,000원’ 같은 문자열 가격(217건, 주로 범위형)은 단일 금액으로 해석하기 어려워 제외 (문자열 변환 포함 시 2,202건)</p></div>
+      <div class="card"><h3 style="font-size:18px">Q. Ridge 로그 R² 0.93인데 왜 탈락?</h3><p style="font-size:15px">로그 공간 설명력과 달리 역변환 시 고가 상품 오차가 확대되어 원 단위 MAE 575만 원 · RMSE 6,865만 원</p></div>
+    </div>
+  </div>
+  <aside class="notes">질의응답용 부록입니다. 발표 시간에는 포함되지 않습니다.
+특히 예상되는 질문은 LLM이 만든 기준값의 순환성, 표준 스키마의 작은 기여도, 판매자 피처의 편향 가능성입니다. 세 질문 모두 논문 7.3절 한계와 7.4절 향후 연구에서 다룬 내용과 연결해 답변하면 됩니다.
+1,985건 질문이 나오면, 숫자형 가격만 집계했고 문자열로 기재된 가격 217건은 대부분 범위형이라 제외했다고 답변합니다.</aside>
+</section>
+
+<!-- ═════════════ 부록 A2 실험 환경 ═════════════ -->
+<section class="slide" data-appendix="A2" data-time="0" data-title="부록 · 실험 환경">
+  <div class="kicker">부록 A2</div>
+  <h2 class="title">실험 환경과 최종 모델 설정</h2>
+  <div class="body" style="margin-top:14px">
+    <div class="card" style="flex:1;padding:14px 18px">
+      <h3>실행 환경</h3>
+      <table class="t" style="font-size:15px">
+        <tr><td>실행 환경</td><td>Google Colab · Linux 6.6.122+ (x86_64)</td></tr>
+        <tr><td>언어 · GPU</td><td>Python 3.13.15 · NVIDIA L4</td></tr>
+        <tr><td>데이터 처리</td><td>NumPy 2.1.3 · Pandas 2.2.3 · SciPy 1.16.3</td></tr>
+        <tr><td>모델</td><td>scikit-learn 1.6.1 · XGBoost 3.2.0 · LightGBM 4.6.0</td></tr>
+        <tr><td>설명가능성</td><td>SHAP 0.52.0</td></tr>
+        <tr><td>시각화</td><td>Matplotlib 3.10.0 · Seaborn 0.13.2</td></tr>
+      </table>
+    </div>
+    <div class="card" style="flex:1;padding:14px 18px">
+      <h3>최종 XGBoost (Step 4)</h3>
+      <table class="t" style="font-size:15px">
+        <tr><td>목적함수</td><td class="mono">reg:squarederror</td></tr>
+        <tr><td>학습률 · 최대 깊이</td><td>0.03 · 5</td></tr>
+        <tr><td>최대 추정기 · 조기 종료</td><td>1,000 · 50회</td></tr>
+        <tr><td>subsample · colsample_bytree</td><td>0.85 · 0.85</td></tr>
+        <tr><td>텍스트 · 스키마</td><td>TF-IDF (1–2gram, 30k) · TF-IDF (unigram, 20k)</td></tr>
+        <tr><td>종속변수 · 시드</td><td>log(1+price) · 2026</td></tr>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">실험 환경과 하이퍼파라미터에 대한 질문이 나올 때 띄우는 부록입니다.</aside>
+</section>
+
+</div></div>
+
+<div id="notesPanel"><div class="meta" id="notesMeta"></div><div id="notesText"></div></div>
+<div id="hint">← → 이동 · <b>N</b> 발표 노트 · <b>P</b> 발표자 화면 · <b>F</b> 전체화면 · <b>B</b> 화면 가리기</div>
+<div id="blank"></div>
+
+<script>
+(function(){
+  const deck = document.getElementById('deck');
+  const slides = Array.from(deck.querySelectorAll('.slide'));
+  const main = slides.filter(s => !s.dataset.appendix);
+  const N = main.length;
+  let cur = 0, pw = null, t0 = null, elapsedPrev = 0, running = false;
+
+  // 계획 시간 누적
+  let acc = 0;
+  slides.forEach(s => { acc += (+s.dataset.time || 0); s.dataset.planEnd = acc; });
+  const totalPlan = acc;
+  const optionalSec = main.filter(s => s.dataset.optional).reduce((a, s) => a + (+s.dataset.time || 0), 0);
+
+  const fmt = sec => { sec = Math.max(0, Math.round(sec)); return Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0'); };
+
+  // 푸터 생성
+  slides.forEach((s, k) => {
+    if (s.classList.contains('cover') || s.classList.contains('end')) return;
+    const f = document.createElement('div');
+    f.className = 'foot';
+    const pg = s.dataset.appendix ? '부록 ' + s.dataset.appendix : (main.indexOf(s) + 1) + ' / ' + N;
+    f.innerHTML = '<span>권순률 · 데이터 자산 가격 예측 및 가치평가 연구</span><span class="pg">' + pg + '</span>';
+    s.appendChild(f);
+  });
+
+  function fit(){
+    const sc = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    deck.style.transform = 'scale(' + sc + ')';
+  }
+  window.addEventListener('resize', fit); fit();
+
+  function elapsed(){ return elapsedPrev + (running ? (Date.now() - t0) / 1000 : 0); }
+  function startTimer(){ if (!running){ t0 = Date.now(); running = true; } }
+  function pauseTimer(){ if (running){ elapsedPrev = elapsed(); running = false; } }
+  function resetTimer(){ elapsedPrev = 0; running = false; t0 = null; updatePresenter(); }
+
+  function noteMeta(s){
+    const t = +s.dataset.time || 0;
+    let m = (s.dataset.appendix ? '부록 ' + s.dataset.appendix : (main.indexOf(s)+1) + ' / ' + N) + ' · ' + s.dataset.title;
+    if (t) m += ' · 목표 ' + fmt(t) + ' · 누적 계획 ' + fmt(+s.dataset.planEnd);
+    if (s.dataset.optional) m += ' · 시간 부족 시 생략 가능';
+    return m;
+  }
+
+  function go(n){
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === cur));
+    const s = slides[cur];
+    document.getElementById('notesMeta').textContent = noteMeta(s);
+    document.getElementById('notesText').innerHTML = (s.querySelector('.notes')?.innerHTML || '').replace(/\n/g, '<br>');
+    document.getElementById('bar').style.width = (Math.min(cur, N - 1) / (N - 1) * 100) + '%';
+    if (cur > 0) startTimer();
+    history.replaceState(null, '', '#' + (cur + 1));
+    updatePresenter();
+  }
+
+  // ── 발표자 화면 (별도 창) ──
+  function presenterHTML(){
+    const css = document.querySelector('style').textContent;
+    return '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>발표자 화면</title><style>' + css +
+    'html,body{background:#131313;color:#eef1ef;height:100%;overflow:hidden}' +
+    '.pv-wrap{display:grid;grid-template-columns:auto 1fr;gap:22px;padding:20px;height:100vh;box-sizing:border-box}' +
+    '.pv{position:relative;overflow:hidden;border-radius:8px;background:#fff;flex:none}' +
+    '.pv .deck{position:absolute;left:0;top:0;transform-origin:0 0}' +
+    '.pv .slide{display:flex;animation:none}' +
+    '.side{display:flex;flex-direction:column;min-width:0;min-height:0}' +
+    '.timer{display:flex;gap:26px;align-items:flex-end;flex-wrap:wrap}' +
+    '.timer .el{font:800 54px/1 var(--title);color:#fff}' +
+    '.timer .pl{font:700 17px/1.5 var(--body);color:#c9cfcc}' +
+    '.st{display:inline-block;padding:5px 12px;border-radius:999px;font:800 15px/1.2 var(--body)}' +
+    '.st.ok{background:#03C75A;color:#171b1a}.st.late{background:#fff;color:#171b1a}' +
+    '.meta2{font:700 15px/1.4 var(--body);color:#03C75A;margin:16px 0 8px}' +
+    '.ntext{flex:1;overflow:auto;font:400 22px/1.75 var(--body);color:#eef1ef;padding-right:8px}' +
+    '.ctrl{display:flex;gap:8px;margin-top:12px}.ctrl button{font:700 15px var(--body);padding:9px 14px;border-radius:8px;border:0;background:#2a2d2c;color:#fff;cursor:pointer}' +
+    '.ctrl button.pri{background:#03C75A;color:#171b1a}' +
+    '.lbl{font:700 14px var(--body);color:#c9cfcc;margin:12px 0 6px}' +
+    '</style></head><body><div class="pv-wrap"><div><div class="lbl" style="margin-top:0">현재 슬라이드</div><div class="pv" id="pvCur" style="width:640px;height:360px"></div>' +
+    '<div class="lbl">다음 슬라이드 · <span id="nextTitle"></span></div><div class="pv" id="pvNext" style="width:384px;height:216px"></div></div>' +
+    '<div class="side"><div class="timer"><div><div class="pl">경과</div><div class="el" id="el">0:00</div></div>' +
+    '<div class="pl">계획 누적 <b id="plan" style="color:#fff">0:00</b> / 전체 ' + fmt(totalPlan) + '<br>생략 가능 슬라이드 합계 ' + fmt(optionalSec) + '</div><span class="st ok" id="st">정상</span></div>' +
+    '<div class="meta2" id="meta2"></div><div class="ntext" id="ntext"></div>' +
+    '<div class="ctrl"><button id="bPrev">← 이전</button><button class="pri" id="bNext">다음 →</button><button id="bPause">일시정지</button><button id="bReset">타이머 초기화</button></div></div></div></body></html>';
+  }
+
+  function clonePreview(box, s, scale){
+    box.innerHTML = '';
+    if (!s) return;
+    const d = document.createElement('div');
+    d.className = 'deck';
+    d.style.width = '1280px'; d.style.height = '720px';
+    d.style.transform = 'scale(' + scale + ')';
+    const c = s.cloneNode(true);
+    c.classList.add('active');
+    d.appendChild(c);
+    box.appendChild(d);
+  }
+
+  function updatePresenter(){
+    if (!pw || pw.closed) return;
+    const doc = pw.document, s = slides[cur], nx = slides[cur + 1];
+    const pc = doc.getElementById('pvCur'); if (!pc) return;
+    if (pc.dataset.idx !== String(cur)){
+      clonePreview(pc, s, 0.5);
+      clonePreview(doc.getElementById('pvNext'), nx, 0.3);
+      pc.dataset.idx = String(cur);
+      doc.getElementById('nextTitle').textContent = nx ? nx.dataset.title : '(마지막)';
+      doc.getElementById('meta2').textContent = noteMeta(s);
+      doc.getElementById('ntext').innerHTML = (s.querySelector('.notes')?.innerHTML || '').replace(/\n/g, '<br>');
+      doc.getElementById('ntext').scrollTop = 0;
+    }
+    tick();
+  }
+  function tick(){
+    if (!pw || pw.closed) return;
+    const doc = pw.document, el = elapsed(), s = slides[cur];
+    const planEnd = +s.dataset.planEnd, planStart = planEnd - (+s.dataset.time || 0);
+    const e = doc.getElementById('el'); if (!e) return;
+    e.textContent = fmt(el);
+    doc.getElementById('plan').textContent = fmt(planStart) + '–' + fmt(planEnd);
+    const st = doc.getElementById('st'), late = el - planEnd;
+    if (s.dataset.appendix){ st.textContent = '부록'; st.className = 'st ok'; }
+    else if (late > 30){ st.textContent = fmt(late) + ' 지연'; st.className = 'st late'; }
+    else { st.textContent = '정상'; st.className = 'st ok'; }
+    doc.getElementById('bPause').textContent = running ? '일시정지' : '재개';
+  }
+  setInterval(tick, 500);
+
+  function openPresenter(){
+    if (pw && !pw.closed){ pw.focus(); return; }
+    pw = window.open('', 'thesisPresenter', 'width=1200,height=720');
+    if (!pw){ alert('팝업이 차단되었습니다. 이 파일의 팝업을 허용한 뒤 P 키를 다시 눌러 주세요.'); return; }
+    pw.document.open(); pw.document.write(presenterHTML()); pw.document.close();
+    const d = pw.document;
+    d.addEventListener('keydown', onKey);
+    d.getElementById('bPrev').onclick = () => go(cur - 1);
+    d.getElementById('bNext').onclick = () => go(cur + 1);
+    d.getElementById('bPause').onclick = () => { running ? pauseTimer() : startTimer(); tick(); };
+    d.getElementById('bReset').onclick = resetTimer;
+    updatePresenter();
+  }
+
+  function onKey(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const k = e.key;
+    if (['ArrowRight','PageDown',' ','Enter'].includes(k)){ e.preventDefault(); go(cur + 1); }
+    else if (['ArrowLeft','PageUp','Backspace'].includes(k)){ e.preventDefault(); go(cur - 1); }
+    else if (k === 'Home'){ go(0); }
+    else if (k === 'End'){ go(N - 1); }
+    else if (k === 'n' || k === 'N' || k === 'ㅜ'){ document.body.classList.toggle('notes-on'); }
+    else if (k === 'p' || k === 'P' || k === 'ㅔ'){ openPresenter(); }
+    else if (k === 'b' || k === 'B' || k === 'ㅠ' || k === '.'){ document.body.classList.toggle('blank'); }
+    else if (k === 'f' || k === 'F' || k === 'ㄹ'){
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.();
+    }
+  }
+  document.addEventListener('keydown', onKey);
+
+  const h = parseInt(location.hash.slice(1), 10);
+  go(isNaN(h) ? 0 : h - 1);
+  setTimeout(() => document.getElementById('hint').classList.add('hide'), 5000);
+})();
+</script>
+</body>
+</html>
