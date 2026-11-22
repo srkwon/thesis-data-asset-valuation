@@ -1,11 +1,11 @@
 # SLM-LLM 기반 스키마 매칭 및 설명가능 인공지능을 활용한 데이터 자산 가격 예측 및 가치평가 연구
 
-고려대학교 SW·AI융합대학원 빅데이터융합학과 공학석사 학위논문 (권순률, 지도교수 강성구, 2027년 2월)
+고려대학교 SW·AI융합대학원 빅데이터융합학과 석사학위논문 심사 자료 (권순률, 지도교수 강성구)
 
 석사학위논문 심사위원께서 논문의 전체 흐름을 파악하실 수 있도록 정리한 요약 페이지입니다.
 
 - **요약 페이지**: https://srkwon.github.io/thesis-data-asset-valuation/
-- **논문 전문 (최종본, PDF)**: [`paper/thesis.pdf`](paper/thesis.pdf)
+- **논문 전문 (PDF)**: [`paper/thesis.pdf`](paper/thesis.pdf)
 - **발표자료**: https://srkwon.github.io/thesis-data-asset-valuation/slides/ (← → 키로 이동, F 전체화면)
 
 ## 연구 요약
@@ -23,12 +23,12 @@
 ```
 index.html      요약 페이지 (GitHub Pages)
 slides/         발표자료 (HTML)
-paper/          논문 최종본 PDF
+paper/          논문 PDF
 assets/fig/     논문 그림 (3-1, 4-1, 5-3, 6-1, 6-5, 6-6, 7-1)
 fonts/          나눔스퀘어 · 나눔스퀘어 네오 웹폰트
 ```
 
-수치와 표 번호는 논문 최종본을 따르며, 페이지와 PDF가 다를 경우 PDF가 기준입니다.
+수치와 표 번호는 2026년 11월 22일 자 논문 PDF를 따르며, 페이지와 PDF가 다를 경우 PDF가 기준입니다.
 
 ## 폰트
 
